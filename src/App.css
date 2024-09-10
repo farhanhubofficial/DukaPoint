@@ -1,0 +1,21 @@
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  
+}
+body{
+  background-color: rgb(209, 206, 206);
+  font-family: 'Roboto', sans-serif; 
+ background-image:  'url("https://via.placeholder.com/500")';
+ 
+ 
+}
+
+
+
+.hero{
+  background-color: rgba(97, 88, 88, 0.15);
+  border: solid none;
+  
+}
