@@ -26,6 +26,7 @@ const orderSlice = createSlice({
     clearOrder(state, action) {
       const { id, email } = action.payload;
       state.items = state.items.filter(order => order.id !== id || order.email !== email);
+      saveOrdersToLocalStorage(state.items); // Correctly save the updated orders to localStorage
     },
   },
 });

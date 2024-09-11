@@ -20,6 +20,7 @@ import Admin from './Admin'
 import AdminCurtainsPage from './AdminCurtainsPage'
 import EditCurtain from './EditCurtain'
 import Orders from './Orders'
+import ManageSalesPage from './ManageSalesPage'
 
 function ConnectivePage() {
   return (
@@ -37,7 +38,21 @@ function ConnectivePage() {
             
             <Curtains/>}/>
           <Route path='/vision' element = {<Vision/>}/>
-          <Route path='/orders' element = {<Orders/>}/>
+
+
+
+          <Route path='/orders' element =
+          
+          {
+            <ProtectedRoute>
+           <Orders/>
+          </ProtectedRoute>
+         
+          
+          } />
+
+
+          <Route path = '/ManageSalesPage' element = {<ManageSalesPage/>}/>
 
           <Route path='/Approach' element = {<Approach/>}/>
           <Route path = '/curtains/Addcurtains' element = {<AddCurtain className = "absolute"/>}/>
@@ -48,10 +63,10 @@ function ConnectivePage() {
           <Route path='/admin' element =
           
           {
-          //   <ProtectedRoute>
-         
-          // </ProtectedRoute>
+            <ProtectedRoute>
            <Admin/>
+          </ProtectedRoute>
+         
           
           } />
           <Route path = "/AdminCurtainsPage" element = {<AdminCurtainsPage/>} />

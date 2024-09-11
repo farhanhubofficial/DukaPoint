@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BsCart } from "react-icons/bs";
 import { IoMdMenu, IoMdClose } from "react-icons/io";
@@ -6,21 +6,28 @@ import { MdAccountCircle } from "react-icons/md";
 import clsx from "clsx";
 import { useSelector } from "react-redux";
 import Logo from "../Images/Logo.jpg";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 function Header() {
   const [isSideMenuOpen, setMenu] = useState(false);
   const [HrMenu, setHrMenu] = useState("");
   const [About, SetAbout] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const auth = getAuth();
-  const user = auth.currentUser;
   const displayNameInitial = user && user.displayName ? user.displayName.charAt(0) : "";
 
   const items = useSelector((state) => state.cart.items);
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   const handleHomeHr = () => setHrMenu("Home");
   const handleAboutHr = () => setHrMenu("About");
@@ -30,17 +37,25 @@ function Header() {
   const handlePillowsHr = () => setHrMenu("Pillows");
   const handleDuvetsHr = () => setHrMenu("Duvets");
 
-  const MouseMoeve = () => SetAbout(true);
+  const MouseMove = () => SetAbout(true);
   const MouseLeave = () => SetAbout(false);
 
   const handleLoginClick = () => {
     navigate("/login");
-    setMenu(false); // Close the menu after navigating
+    setMenu(false);
   };
 
   const handleSignupClick = () => {
     navigate("/signup");
-    setMenu(false); // Close the menu after navigating
+    setMenu(false);
+  };
+
+  const handleLogout = () => {
+    signOut(auth).then(() => {
+      setDropdownOpen(false);
+      setUser(null);
+      navigate("/login");
+    });
   };
 
   const toggleDropdown = () => {
@@ -54,11 +69,11 @@ function Header() {
         <div className="flex">
           <img
             src={Logo}
-            alt=""
+            alt="Logo"
             className="rounded-full w-12 h-12 bg-black mr-2"
           />
           <Link>
-            <h2 className="text-white text font-roboto font-bold text-3xl">
+            <h2 className="text-white font-roboto font-bold text-3xl">
               <span className="text-black">DECOR</span>
               <span className="text-yellow-800">POINT</span>
             </h2>
@@ -83,7 +98,7 @@ function Header() {
           <div
             className="relative"
             onMouseLeave={MouseLeave}
-            onMouseMove={MouseMoeve}
+            onMouseMove={MouseMove}
           >
             <Link to="/About" onClick={handleAboutHr}>
               About Us
@@ -107,7 +122,7 @@ function Header() {
                 to="/Vision"
               >
                 <h1 className="my-8">
-                  Vission, Mission And Core <span>Values</span>
+                  Vision, Mission And Core <span>Values</span>
                 </h1>
               </Link>
               <Link
@@ -188,56 +203,46 @@ function Header() {
         </Link>
 
         <div className="relative hidden lg:block">
-
-
-        {user ? (
-  <div
-    onClick={toggleDropdown}
-    className="w-10 h-10 flex items-center justify-center text-xl rounded-full bg-blue-500 text-white cursor-pointer"
-  >
-    {displayNameInitial}
-  </div>
-) : (
-  <MdAccountCircle
-    onClick={toggleDropdown}
-    className="text-4xl text-yellow-800/100 cursor-pointer"
-  />
-)}
-{isDropdownOpen && (
-  <div className="absolute top-12 right-0 w-20 bg-white border rounded-md shadow-lg">
-    {user ? (
-      <button
-        onClick={() => {
-          auth.signOut(); // Sign out logic here
-          setDropdownOpen(false);
-        }}
-        className="block px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100"
-      >
-        Log Out
-      </button>
-    ) : (
-      <>
-        <button
-          onClick={handleLoginClick}
-          className="block px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100"
-        >
-          Login
-        </button>
-        <button
-          onClick={handleSignupClick}
-          className="block px-4 py-2 text-sm text-gray-700 font-bold hover:bg-gray-100"
-        >
-          Sign Up
-        </button>
-      </>
-    )}
-  </div>
-)}
-
-
-
-
-
+          {user ? (
+            <div
+              onClick={toggleDropdown}
+              className="w-10 h-10 flex items-center justify-center text-xl rounded-full bg-blue-500 text-white cursor-pointer"
+            >
+              {displayNameInitial}
+            </div>
+          ) : (
+            <MdAccountCircle
+              onClick={toggleDropdown}
+              className="text-4xl text-yellow-800/100 cursor-pointer"
+            />
+          )}
+          {isDropdownOpen && (
+            <div className="absolute top-12 right-0 w-20 bg-white border rounded-md shadow-lg">
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className="block px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100"
+                >
+                  Log Out
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={handleLoginClick}
+                    className="block px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={handleSignupClick}
+                    className="block px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -255,46 +260,11 @@ function Header() {
                   Home
                 </Link>
               </li>
-              <div
-  className="relative"
-  onMouseLeave={MouseLeave}
-  onMouseMove={MouseMoeve}
->
-  <Link to="/About" onClick={handleAboutHr}>
-    About Us
-    <hr
-      className={
-        HrMenu === "About"
-          ? "border-none w-[80%] h-[3px] bg-black"
-          : ""
-      }
-    />
-  </Link>
-  <div
-    className={
-      About
-        ? "bg-slate-400 shadow-custom-light border h-32 w-56 left-[-1rem] absolute flex flex-col p-2 z-50" // Adjusted height and width
-        : "hidden"
-    }
-  >
-    <Link
-      className="border-b-2 border-solid border-yellow-800"
-      to="/Vision"
-    >
-      <h1 className="my-1">Vision, Mission And Core <span>Values</span></h1>
-    </Link>
-    <Link
-      className="border-b-2 border-solid border-yellow-800"
-      to="/Approach"
-    >
-      <h1 className="my-1">Our Approach</h1>
-    </Link>
-    <Link className="mt-1">
-      <h1>Our Product And Services</h1>
-    </Link>
-  </div>
-</div>
-
+              <div className="relative">
+                <Link to="/About" onClick={() => setMenu(false)}>
+                  About Us
+                </Link>
+              </div>
               <li>
                 <Link to="/curtains" onClick={() => setMenu(false)}>
                   Curtains
@@ -317,66 +287,35 @@ function Header() {
               </li>
               <li>
                 <Link to="/duvets" onClick={() => setMenu(false)}>
-                  Duveets
+                  Duvets
                 </Link>
-              
-                <div className="relative ">
-
-
-
-                {user ? (
-  <div
-    onClick={toggleDropdown}
-    className="w-10 h-10 flex items-center justify-center text-xl rounded-full bg-blue-500 text-white cursor-pointer"
-  >
-    {displayNameInitial}
-  </div>
-) : (
-  <MdAccountCircle
-    onClick={toggleDropdown}
-    className="text-4xl text-yellow-800/100 cursor-pointer"
-  />
-)}
-{isDropdownOpen && (
-  <div className="absolute top-12 right-0 w-20 bg-white border rounded-md shadow-lg">
-    {user ? (
-      <button
-        onClick={() => {
-          auth.signOut(); // Sign out logic here
-          setDropdownOpen(false);
-        }}
-        className="block px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100"
-      >
-        Log Out
-      </button>
-    ) : (
-      <>
-        <button
-          onClick={handleLoginClick}
-          className="block px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100"
-        >
-          Login
-        </button>
-        <button
-          onClick={handleSignupClick}
-          className="block px-4 py-2 text-sm text-gray-700 font-bold hover:bg-gray-100"
-        >
-          Sign Up
-        </button>
-      </>
-    )}
-  </div>
-)}
-
-
-
-
-
-        </div>
-               
               </li>
+              {user ? (
+                <li>
+                  <button onClick={handleLogout} className="text-left">
+                    Log Out
+                  </button>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <button onClick={handleLoginClick} className="text-left">
+                      Login
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={handleSignupClick} className="text-left">
+                      Sign Up
+                    </button>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
+          <div
+            className="flex-1"
+            onClick={() => setMenu(false)}
+          />
         </div>
       )}
     </nav>
