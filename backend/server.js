@@ -1,6 +1,6 @@
 const jsonServer = require('json-server');
 const server = jsonServer.create();
-const router = jsonServer.router('./db.json'); // Path to db.json file
+const router = jsonServer.router('./backend/db.json'); // Update to point correctly to db.json
 const middlewares = jsonServer.defaults();
 const port = process.env.PORT || 3002;
 
