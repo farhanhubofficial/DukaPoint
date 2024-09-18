@@ -15,7 +15,7 @@ function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log(user)
+      console.log(user);
 
       // Get user role from Firestore
       const userDocRef = doc(db, "users", user.uid);
@@ -24,11 +24,14 @@ function Login() {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         console.log(userData);
-        // Check if the user is an admin
+
+        // Check the role of the user
         if (userData.role === "admin") {
           navigate("/admin"); // Redirect to admin panel
+        } else if (userData.role === "operator" ) {
+          navigate("/users"); // Redirect to Users page
         } else {
-          navigate("/"); // Redirect to home for regular users
+          navigate("/")
         }
       } else {
         setError("User does not exist.");

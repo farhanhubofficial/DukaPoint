@@ -18,7 +18,8 @@ const orderSlice = createSlice({
   reducers: {
     addOrder: (state, action) => {
       state.items.push(action.payload);
-      saveOrdersToLocalStorage(state.items); // Save updated items to local storage
+      saveOrdersToLocalStorage(state.items);
+      console.log("add orders", action.payload) // Save updated items to local storage
     },
     confirmOrder: (state) => {
       state.orderConfirmed = true;

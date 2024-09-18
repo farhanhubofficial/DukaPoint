@@ -3,13 +3,13 @@ import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { useAddCurtainMutation } from '../Store/Api/CurtSlice';
+import { v4 as uuidv4 } from 'uuid';
 
 function AddCurtain() {
   const [addCurtain, { isLoading }] = useAddCurtainMutation();
   const navigate = useNavigate();
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
-  // Load initial values from local storage or set default
   const [initialValues, setInitialValues] = useState(() => {
     const savedData = localStorage.getItem('formData');
     if (savedData) {
@@ -19,7 +19,6 @@ function AddCurtain() {
       products: [
         {
           name: '',
-          id: '',
           price: '',
           image: '',
           color: '',
@@ -34,9 +33,8 @@ function AddCurtain() {
     products: Yup.array().of(
       Yup.object({
         name: Yup.string().required('Name is required'),
-        id: Yup.string().required('ID is required'),
         price: Yup.number().required('Price is required').positive('Price must be positive'),
-        image: Yup.string().required('Image URL is required'),
+        image: Yup.string().required('Image is required'),
         color: Yup.string().required('Color is required'),
         size: Yup.string().required('Size is required'),
         material: Yup.string().required('Material is required'),
@@ -47,25 +45,32 @@ function AddCurtain() {
   const handleSubmit = async (values) => {
     try {
       for (const product of values.products) {
-        await addCurtain(product).unwrap();
+        const newProduct = { ...product, id: uuidv4() }; // Generate auto ID
+        await addCurtain(newProduct).unwrap();
       }
-      // Clear local storage on successful submission
       localStorage.removeItem('formData');
-      navigate('/'); // Redirect to the curtain list or desired page
+      navigate('/');
     } catch (err) {
       console.error('Failed to add curtain:', err);
     }
   };
 
-  // Save form data to local storage whenever values change
   const saveDataToLocalStorage = (values) => {
     localStorage.setItem('formData', JSON.stringify(values));
   };
 
+  const handleImageChange = (event, setFieldValue) => {
+    const file = event.currentTarget.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setFieldValue(`products.${currentProductIndex}.image`, imageUrl);
+      setFieldValue(`products.${currentProductIndex}.file`, file); // Save the actual file
+    }
+  };
 
   const renderPaginationNumbers = (totalProducts, currentIndex) => {
     const numbers = [];
-    const limit = 5; // Limit the number of visible numbers
+    const limit = 5;
 
     if (totalProducts <= limit) {
       for (let i = 0; i < totalProducts; i++) {
@@ -103,10 +108,6 @@ function AddCurtain() {
     return numbers;
   };
 
-
-
-
-
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Add New Curtains</h1>
@@ -115,14 +116,13 @@ function AddCurtain() {
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
-          enableReinitialize={true} // Reinitialize form with new initialValues
+          enableReinitialize={true}
         >
-          {({ values }) => {
+          {({ values, setFieldValue }) => {
             useEffect(() => {
-              // Update local storage whenever form values change
               saveDataToLocalStorage(values);
             }, [values]);
- 
+
             return (
               <Form className="space-y-4">
                 <FieldArray name="products">
@@ -136,22 +136,10 @@ function AddCurtain() {
                               type="text"
                               name={`products.${currentProductIndex}.name`}
                               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                              placeholder="Enter curtain name"
                             />
                             <ErrorMessage
                               name={`products.${currentProductIndex}.name`}
-                              component="div"
-                              className="text-red-500 text-xs"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">ID</label>
-                            <Field
-                              type="text"
-                              name={`products.${currentProductIndex}.id`}
-                              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                            />
-                            <ErrorMessage
-                              name={`products.${currentProductIndex}.id`}
                               component="div"
                               className="text-red-500 text-xs"
                             />
@@ -162,7 +150,7 @@ function AddCurtain() {
                               type="number"
                               name={`products.${currentProductIndex}.price`}
                               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                              placeholder = "price"
+                              placeholder="Enter price"
                             />
                             <ErrorMessage
                               name={`products.${currentProductIndex}.price`}
@@ -176,6 +164,7 @@ function AddCurtain() {
                               type="text"
                               name={`products.${currentProductIndex}.color`}
                               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                              placeholder="Enter color"
                             />
                             <ErrorMessage
                               name={`products.${currentProductIndex}.color`}
@@ -184,19 +173,25 @@ function AddCurtain() {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              Image URL
-                            </label>
-                            <Field
-                              type="text"
+                            <label className="block text-sm font-medium text-gray-700">Image</label>
+                            <input
+                              type="file"
                               name={`products.${currentProductIndex}.image`}
                               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                              onChange={(event) => handleImageChange(event, setFieldValue)}
                             />
                             <ErrorMessage
                               name={`products.${currentProductIndex}.image`}
                               component="div"
                               className="text-red-500 text-xs"
                             />
+                            {values.products[currentProductIndex].image && (
+                              <img
+                                src={values.products[currentProductIndex].image}
+                                alt="Curtain preview"
+                                className="mt-2 w-full h-32 object-cover"
+                              />
+                            )}
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700">Material</label>
@@ -204,6 +199,7 @@ function AddCurtain() {
                               type="text"
                               name={`products.${currentProductIndex}.material`}
                               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                              placeholder="Enter material"
                             />
                             <ErrorMessage
                               name={`products.${currentProductIndex}.material`}
@@ -217,7 +213,7 @@ function AddCurtain() {
                               type="number"
                               name={`products.${currentProductIndex}.size`}
                               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                              placeholder = "insert the size in meters"
+                              placeholder="Size in meters"
                             />
                             <ErrorMessage
                               name={`products.${currentProductIndex}.size`}
@@ -225,7 +221,7 @@ function AddCurtain() {
                               className="text-red-500 text-xs"
                             />
                           </div>
-                          <div className=" grid grid-col-2  gap-2 lg:flex justify-between space-x-2">
+                          <div className="grid grid-col-2 gap-2 lg:flex justify-between space-x-2">
                             <button
                               type="button"
                               className="bg-red-500 text-white font-bold py-1 px-3 rounded hover:bg-red-600"
@@ -244,7 +240,6 @@ function AddCurtain() {
                               onClick={() => {
                                 push({
                                   name: '',
-                                  id: '',
                                   price: '',
                                   image: '',
                                   color: '',
@@ -252,59 +247,26 @@ function AddCurtain() {
                                   material: '',
                                 });
                                 setCurrentProductIndex(values.products.length);
-                                saveDataToLocalStorage(values);
                               }}
                             >
-                              Add Another Product
+                              Add More Curtains
                             </button>
                           </div>
-                          <div className="   grid grid-col-2  gap-2  lg:flex justify-between mt-4">
-                            <button
-                              type="button"
-                              className="bg-gray-500 text-white font-bold py-2 px-4 rounded hover:bg-gray-600"
-                              onClick={() =>
-                                setCurrentProductIndex((prev) => Math.max(prev - 1, 0))
-                              }
-                              disabled={currentProductIndex === 0}
-                            >
-                              Previous
-                            </button>
-                            <button
-                              type="button"
-                              className="bg-gray-500 text-white font-bold py-2 px-4 rounded hover:bg-gray-600"
-                              onClick={() =>
-                                setCurrentProductIndex((prev) =>
-                                  Math.min(prev + 1, values.products.length - 1)
-                                )
-                              }
-                              disabled={currentProductIndex === values.products.length - 1}
-                            >
-                              Next
-                            </button>
-                          </div>
-
-                          <div className="mt-4 flex justify-center">
-                          {renderPaginationNumbers(values.products.length, currentProductIndex)}
-                        </div>
-
-
                         </div>
                       )}
-                      <div className="flex justify-end mt-4">
-                        <span className="text-lg font-medium mr-4">
-                          Total Products: {values.products.length}
-                        </span>
+                      <div className="flex justify-center mt-4">
+                        {renderPaginationNumbers(values.products.length, currentProductIndex)}
                       </div>
                     </div>
                   )}
                 </FieldArray>
-                <div>
+                <div className="flex justify-end mt-4">
                   <button
                     type="submit"
+                    className={`bg-blue-500 text-white font-bold py-2 px-4 rounded ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={isLoading}
-                    className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
                   >
-                    {isLoading ? 'Adding...' : 'Add Products'}
+                    {isLoading ? 'Adding...' : 'Add Curtains'}
                   </button>
                 </div>
               </Form>

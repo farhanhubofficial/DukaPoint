@@ -217,7 +217,7 @@ function Header() {
             />
           )}
           {isDropdownOpen && (
-            <div className="absolute top-12 right-0 w-20 bg-white border rounded-md shadow-lg">
+            <div className="absolute top-12 right-0 w-32 bg-white border rounded-md shadow-lg">
               {user ? (
                 <button
                   onClick={handleLogout}
@@ -239,6 +239,9 @@ function Header() {
                   >
                     Sign Up
                   </button>
+                  <button onClick={()=>navigate('/admin')}  >Login As Admin</button>
+                  <button onClick={()=>navigate('/users')}  >Login As Operator</button>
+
                 </>
               )}
             </div>
@@ -306,6 +309,16 @@ function Header() {
                   <li>
                     <button onClick={handleSignupClick} className="text-left">
                       Sign Up
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={handleSignupClick} className="text-left">
+                      Login As Admin
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={handleSignupClick} className="text-left">
+                      Login As operator
                     </button>
                   </li>
                 </>

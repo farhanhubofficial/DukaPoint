@@ -1,0 +1,23 @@
+{
+  "orders": [
+    {
+      "id": "a2c0",
+      "items": [
+        {
+          "name": "Classic Curtains",
+          "id": "16",
+          "price": 50,
+          "color": "Blue",
+          "size": "4",
+          "material": "Cotton",
+          "image": "Acoustic-Curtains/ac16.jpg",
+          "description": "",
+          "quantity": 1
+        }
+      ],
+      "displayName": null,
+      "email": "alii@gmail.com",
+      "createdAt": "2024-09-14T17:39:07.026Z"
+    }
+  ]
+}

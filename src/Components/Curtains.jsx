@@ -5,6 +5,10 @@ import { Link } from 'react-router-dom'
 
 function Curtains() {
    
+  const { data: allcurtains = [] } = useFetchCurtainsQuery();                            
+
+function Curtains() {
+   
   const { data: allcurtains = [] } = useFetchCurtainsQuery();    
 
 
@@ -23,4 +27,21 @@ function Curtains() {
   )
 }
 
-export default Curtains
+
+
+  return (
+    <div className='relative'>
+     
+     
+ <div className='grid grid-cols-2 lg:grid-cols-4 '>
+            {allcurtains && allcurtains.length
+              ? allcurtains.map((productItem) => ( <CurtainTile product={productItem} />
+
+              ))
+              : null}
+          </div>
+    </div>
+  )
+}
+
+export default Curtains 
