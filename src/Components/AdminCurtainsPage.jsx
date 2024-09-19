@@ -9,14 +9,25 @@ function AdminCurtainsPage() {
 
   return (
     <div className='relative'>
-      <Link to = '/curtains/Addcurtains'> <button className=' fixed bottom-0 right-0 text-white  bg-black font-bold text-xl mt-9 ml-36  p-1 rounded-lg h-24'>Add More + </button> </Link>
+      
      
- <div className='grid grid-cols-2 lg:grid-cols-4 '>
-            {allcurtains && allcurtains.length
-              ? allcurtains.map((productItem) => ( <AdminCurtainTilePage product={productItem} />
+ <div >
+  
+ {allcurtains && allcurtains.length ? (
+  <div className='relative'>
+    <div className='grid grid-cols-2 lg:grid-cols-4 '>
+    {allcurtains.map((productItem) => (
+      <AdminCurtainTilePage key={productItem.id} product={productItem} />
+    ))}
+    </div>
+  
+    <Link to = '/curtains/Addcurtains'> <button className=' fixed bottom-0 right-0 text-white  bg-black font-bold text-xl mt-9 ml-36  p-1 rounded-lg h-24'>Add More + </button> </Link>
+  </div>
+) : null}
 
-              ))
-              : null}
+              
+              
+              <h1>hhh</h1>
           </div>
     </div>
   )

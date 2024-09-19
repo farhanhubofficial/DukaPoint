@@ -137,7 +137,7 @@ function Orders() {
           ))}
         </ul>
       ) : (
-        <p className="text-center text-gray-600">No orders placed.</p>
+        <p className="text-center h-[50vh] text-gray-600">No orders placed.</p>
       )}
     </div>
   );

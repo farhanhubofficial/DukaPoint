@@ -23,7 +23,7 @@ function AdminCurtainTilePage({ product }) {
   };
 
   const handleEdit = () => {
-    navigate(`/editcurtain/${product.id}`);
+    navigate(`/admin/editcurtain/${product.id}`);
   };
 
   return (

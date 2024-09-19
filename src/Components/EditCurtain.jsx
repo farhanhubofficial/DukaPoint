@@ -49,7 +49,7 @@ function EditCurtain() {
   const handleUpdate = async () => {
     if (curtain) {
       await updateCurtain({ id, name, price, material, image, description, size, color }).unwrap();
-      navigate('/admin');
+      navigate('/admin/AdminCurtainsPage');
     }
   };
 
