@@ -19,3 +19,30 @@ body{
   border: solid none;
   
 }
+
+
+
+/* Add this to your CSS file */
+html,
+body {
+  height: 100%;
+  margin: 0; /* Remove default margin */
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensure it takes up the full viewport height */
+}
+
+.main {
+  flex: 1; /* This allows the main content area to expand and push the footer down */
+  display: flex; /* Ensure the main content area can hold routed components */
+  flex-direction: column; /* Adjust if you want horizontal layout */
+}
+
+footer {
+  background-color: white; /* Set the footer background color to white */
+  padding: 20px; /* Add some padding for better aesthetics */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+}

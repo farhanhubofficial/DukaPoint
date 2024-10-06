@@ -1,12 +1,12 @@
-const jsonServer = require('json-server');
-const server = jsonServer.create();
-const router = jsonServer.router('./backend/db.json'); // Update to point correctly to db.json
-const middlewares = jsonServer.defaults();
-const port = process.env.PORT || 3002;
+// Using ESM with import
+import http from 'http';
 
-server.use(middlewares);
-server.use(router);
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello, World!\n');
+});
 
-server.listen(port, () => {
-  console.log(`JSON Server is running on port ${port}`);
+server.listen(3000, () => {
+  console.log('Server running a http://localhost:3000/');
 });

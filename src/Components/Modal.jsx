@@ -15,9 +15,9 @@ function Modal({ isOpen, onClose, product, onAddToCart }) {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg p-5 w-1/3">
         <h2 className="text-lg font-bold mb-2">Product Details</h2>
-        <img src={product.image} alt={product.name} className="object-cover h-40 w-full mb-2" />
+        <img src={product.imageUrl} alt={product.name} className="object-cover h-40 w-full mb-2" />
         <h1 className="font-bold text-xl">Name: {product.name}</h1>
-        <h1>Price: Ksh {product.price}</h1>
+        <h1>Price: Ksh {product.sellingPrice}</h1>
         <h1>Material: {product.material}</h1>
         
         <div className="mt-4">

@@ -1,29 +1,34 @@
-// src/components/ProtectedRoute.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import {auth , db} from "../firebase-config"
+import { auth, db } from "../firebase-config";
 import { doc, getDoc } from "firebase/firestore";
 
 const ProtectedRoute = ({ children }) => {
+  const [isAdmin, setIsAdmin] = useState(null); // Start with null
   const user = auth.currentUser;
 
-  if (!user) {
-    return <Navigate to="/login" />; // Redirect to login if not authenticated
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        setIsAdmin(userDoc.exists() && userDoc.data().role === "admin");
+      } else {
+        setIsAdmin(false); // User not logged in
+      }
+    };
+
+    checkAdmin();
+  }, [user]); // Only run effect if 'user' changes
+
+  if (isAdmin === null) {
+    return <div>Loading...</div>; // Show loading state
   }
-
-  // Check if the user is an admin
-  const checkAdmin = async () => {
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    return userDoc.exists() && userDoc.data().role === "admin";
-  };
-
-  const isAdmin = checkAdmin();
 
   if (!isAdmin) {
-    return <Navigate to="/" />; // Redirect to home if not an admin
+    return <Navigate to={user ? "/" : "/login"} />; // Redirect based on admin status
   }
 
-  return children; // Render the admin component
+  return children; // Render children if user is admin
 };
 
 export default ProtectedRoute;

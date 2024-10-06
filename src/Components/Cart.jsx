@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeItemFromCart, addItemToCart, clearCartItems } from '../Store/Api/CartSlice';
-import { addOrder } from '../Store/Api/OrderSlice';
-import { auth } from '../firebase-config'; // Import Firebase auth
+import { auth, db } from '../firebase-config'; // Import Firebase auth and Firestore
+import { doc, setDoc } from 'firebase/firestore'; // Import Firestore methods
 
 function Cart() {
   const dispatch = useDispatch();
@@ -19,7 +19,6 @@ function Cart() {
     }
   }, [dispatch]);
 
-
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(items));
   }, [items]);
@@ -33,13 +32,44 @@ function Cart() {
     dispatch(removeItemFromCart(id));
   };
 
-  const handleOrder = () => {
+  const handleOrder = async () => {
     setOrderStatus('Processing...');
-    items.forEach((item) => {
-      // Dispatch order with user's displayName and email
-      dispatch(addOrder({ ...item, displayName, email }));
-    });
-    dispatch(clearCartItems())
+
+    try {
+      const orderPromises = items.map(async (item) => {
+        // Calculate totalSellingPrice and totalBuyingPrice
+        const totalSellingPrice = item.sellingPrice * item.size;
+        const totalBuyingPrice = item.buyingPrice * item.size;
+
+        // Use the item's id as the document ID in the "orders" collection
+        const orderRef = doc(db, 'orders', item.id);
+
+        // Use setDoc to explicitly set the document with the cart item's ID
+        await setDoc(orderRef, {
+          ...item,
+          totalSellingPrice, // Add the calculated totalSellingPrice
+          totalBuyingPrice,  // Add the calculated totalBuyingPrice
+          displayName,
+          email,
+          createdAt: new Date(), // Optionally, you can add a timestamp
+        });
+
+        return { id: item.id, ...item }; // Return the item ID along with the item details
+      });
+
+      // Wait for all items to be added to Firestore and collect their IDs
+      const ordersWithIds = await Promise.all(orderPromises);
+
+      // Optionally, you can do something with the ordersWithIds here
+      console.log('Orders placed successfully:', ordersWithIds);
+
+      // Clear the cart after successful order placement
+      dispatch(clearCartItems());
+      setOrderStatus('Order Confirmed');
+    } catch (error) {
+      console.error('Error placing order: ', error);
+      setOrderStatus('Order Failed');
+    }
   };
 
   return (
@@ -49,12 +79,12 @@ function Cart() {
         {items.length > 0 ? (
           items.map((item) => (
             <li key={item.id} className="flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
-              <img src={item.image} alt={item.name} className="w-24 h-24 object-cover mb-4 rounded" />
+              <img src={item.imageUrl} alt={item.name} className="w-24 h-24 object-cover mb-4 rounded" />
               <div className="text-center">
                 <h2 className="font-bold text-xl text-gray-800">{item.name}</h2>
-                <p className="text-gray-600">Price: <span className="font-semibold">ksh {item.price}</span></p>
+                <p className="text-gray-600">Price: <span className="font-semibold">ksh {item.sellingPrice}</span></p>
                 <p className="text-gray-600">Size: <span className="font-semibold">ksh {item.size}</span></p>
-                <p className="text-gray-600">Total: <span className="font-semibold">ksh {item.size * item.price}</span></p>
+                <p className="text-gray-600">Total: <span className="font-semibold">ksh {item.size * item.sellingPrice}</span></p>
                 <button onClick={() => handleRemove(item.id)} className="mt-2 bg-red-500 text-white h-8 w-full rounded-lg hover:bg-red-600">
                   Remove
                 </button>

@@ -4,7 +4,7 @@ import ConnectivePage from './Components/ConnectivePage'
 
 function App() {
   return (
-    <div>
+    <div >
       <ConnectivePage/>
     </div>
   )

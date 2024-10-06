@@ -1,92 +1,72 @@
-import React from 'react'
+import React from 'react';
+import { FaFacebook, FaInstagram, FaTwitter, FaEnvelope } from 'react-icons/fa';
 import { FaLocationDot } from "react-icons/fa6";
-import { MdOutlineCall } from "react-icons/md";
+import Logo from "../Images/Logo.jpg";
+import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <div className='bg-slate-200    h-60 px-2  pt-2 w-[100%] mt-[.1rem] grid grid-cols-2 max-[640px]:grid-cols-1 lg:flex justify-between font-[roboto] sm641:h-[25.9rem] max-[600px]:pb-4 lg:h-auto max-[640px]:h-[37rem] ' >
-        <div className='font-bold'>
-            <h3 className='font-bold text-2xl ml-[-12rem]'>Contact Us</h3>
-            <div className='w-80 bg-black h-[.12rem]  relative'>
-            <div className='w-44  h-[.35rem] m  absolute top-[-.1rem] bg-yellow-800 rounded'>
-                
-                </div>
-            </div>
-        <p className='font-bold text-2xl  '>Call or write to us for any queries or feedback</p>
-        <div className='flex items-start justify-center  ml-[1rem] w-96'>
-            <FaLocationDot className='mt-2 text-xl text-black'/> <div className='bg-black h-10 w-[.18rem] mr-2'></div>
-            
-            <div className='text-black'>
-            <p className=' '>Njewa Business Center, Nakuru CBD</p>
-            <p className='ml-1'>Ground Floor Opposite to Wagaguku Shopping</p>
-                </div> 
+    <div className='bg-white border h-auto px-4 pt-6 w-full mt-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 font-roboto shadow-lg'>
+      {/* Logo Section */}
+      <div className='font-bold'>
+        <div className="flex items-center">
+          <img src={Logo} alt="Logo" className="rounded-full w-12 h-12 bg-black mr-2" />
+          <h2 className="text-black text-3xl">
+            <span className="text-yellow-800">Decor</span>
+            <span className="text-black">Point</span>
+          </h2>
         </div>
-        <div className='flex items-start w-96 ml-8 text-black'>
-            <MdOutlineCall className='mt-2 text-xl'/> <div className='bg-black h-10 w-[.18rem] mr-2'></div>
-            
-            <div>
-            <p>+254 757068601,</p>
-            <p className='ml-1'>+254 788068601</p>
-                </div> 
+        <p className='font-bold text-xl mt-2'>Fulfilling your long run decorational needs</p>
+        <div className='flex space-x-4 mt-4'>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+            <FaFacebook className='text-2xl text-black hover:text-yellow-800' />
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <FaInstagram className='text-2xl text-black hover:text-yellow-800' />
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+            <FaTwitter className='text-2xl text-black hover:text-yellow-800' />
+          </a>
         </div>
+      </div>
 
-        </div>
-        <div className='font-bold'>
-            <h3 className='font-bold text-2xl ml-[-12rem]'>Contact Us</h3>
-            <div className='w-80 bg-black h-[.12rem]  relative'>
-            <div className='w-44  h-[.35rem] m  absolute top-[-.1rem] bg-yellow-800 rounded'>
-                
-                </div>
-            </div>
-        <p className='font-bold text-2xl  '>Call or write to us for any queries or feedback</p>
-        <div className='flex items-start justify-center  ml-[1rem] w-96'>
-            <FaLocationDot className='mt-2 text-xl text-black'/> <div className='bg-black h-10 w-[.18rem] mr-2'></div>
-            
-            <div className='text-black'>
-            <p className=' '>Njewa Business Center, Nakuru CBD</p>
-            <p className='ml-1'>Ground Floor Opposite to Wagaguku Shopping</p>
-                </div> 
-        </div>
-        <div className='flex items-start w-96  ml-8 text-black'>
-            <MdOutlineCall className='mt-2 text-xl'/> <div className='bg-black h-10 w-[.18rem] mr-2'></div>
-            
-            <div>
-            <p>+254 757068601,</p>
-            <p className='ml-1'>+254 788068601</p>
-                </div> 
-        </div>
+      {/* Quick Links Section */}
+      <div className='font-bold'>
+        <h3 className='text-2xl mb-2'>Quick Links</h3>
+        <ul className='text-black'>
+          <li><Link to="/about" className="hover:text-yellow-800">About</Link></li>
+          <li><Link to="/contact" className="hover:text-yellow-800">Contact Us</Link></li>
+          <li><Link to="/faqs" className="hover:text-yellow-800">FAQs</Link></li>
+          <li><Link to="/get-started" className="hover:text-yellow-800">Get Started</Link></li>
+        </ul>
+      </div>
 
-        </div>
+      {/* Support Section */}
+      <div className='font-bold'>
+        <h3 className='text-2xl mb-2'>Support</h3>
+        <p>Email: <FaEnvelope className='inline text-black' /> support@decorpoint.com</p>
+      </div>
 
-        <div className='font-bold'>
-            <h3 className='font-bold text-2xl ml-[-12rem]'>Contact Us</h3>
-            <div className='w-80 bg-black h-[.12rem]  relative'>
-            <div className='w-44  h-[.35rem] m  absolute top-[-.1rem] bg-yellow-800 rounded'>
-                
-                </div>
-            </div>
-        <p className='font-bold text-2xl  '>Call or write to us for any queries or feedback</p>
-        <div className='flex items-start justify-center  ml-[1rem] w-96'>
-            <FaLocationDot className='mt-2 text-xl text-black'/> <div className='bg-black h-10 w-[.18rem] mr-2'></div>
-            
-            <div className='text-black'>
-            <p className=' '>Njewa Business Center, Nakuru CBD</p>
-            <p className='ml-1'>Ground Floor Opposite to Wagaguku Shopping</p>
-                </div> 
+      {/* Get in Touch Section */}
+      <div className='font-bold'>
+        <h3 className='text-2xl mb-2'>Get in Touch</h3>
+        <div className='flex items-start'>
+          <FaLocationDot className='mt-1 text-xl text-black' />
+          <div className='ml-2'>
+            <p>Njewa Business Center, Nakuru CBD</p>
+            <p>Ground Floor Opposite to Wagaguku Shopping</p>
+          </div>
         </div>
-        <div className='flex items-start w-96  ml-8 text-black'>
-            <MdOutlineCall className='mt-2 text-xl'/> <div className='bg-black h-10 w-[.18rem] mr-2'></div>
-            
-            <div>
-            <p>+254 757068601,</p>
-            <p className='ml-1'>+254 788068601</p>
-                </div> 
+        <div className='flex items-start mt-2'>
+          <FaEnvelope className='mt-1 text-xl text-black' />
+          <div className='ml-2'>
+            <p>+254 757068601</p>
+            <p>+254 788068601</p>
+          </div>
         </div>
-
-        </div>
-       
+      </div>
     </div>
-  )
+  );
 }
 
-export default Footer
+export default Footer;
