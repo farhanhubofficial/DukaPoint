@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { addItemToCart } from '../Store/Api/CartSlice';
 import Modal from './Modal'; // Import the Modal component
+import CategoriesModal from './CategoriesModal';
 
 function AddminCurtainTile({ product }) {
   const dispatch = useDispatch();
@@ -31,7 +32,7 @@ function AddminCurtainTile({ product }) {
           onClick={handleImageClick}
         />
         <h1 className="font-bold text-xl lg:text-sm">Name: {product.name}</h1>
-        <h1>Price: Ksh {product.price}</h1>
+        <h1>Price: Ksh {product.sellingPrice}</h1>
         <h1>Material: {product.material}</h1>
         <button
           className="mt-1 bg-green-600 text-white h-10 w-40 rounded-lg"
@@ -42,7 +43,7 @@ function AddminCurtainTile({ product }) {
       </div>
 
       {/* Modal Component */}
-      <Modal
+      <CategoriesModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         product={product}

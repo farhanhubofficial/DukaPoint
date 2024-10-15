@@ -13,7 +13,7 @@ function Modal({ isOpen, onClose, product, onAddToCart }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-5 w-1/3">
+      <div className="bg-white rounded-lg p-5 w-full sm:w-3/4 md:w-1/3 lg:w-1/3"> {/* Adjusted width for responsiveness */}
         <h2 className="text-lg font-bold mb-2">Product Details</h2>
         <img src={product.imageUrl} alt={product.name} className="object-cover h-40 w-full mb-2" />
         <h1 className="font-bold text-xl">Name: {product.name}</h1>

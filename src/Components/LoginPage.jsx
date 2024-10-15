@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth, db } from "../firebase-config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
@@ -10,12 +10,12 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Function to handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log(user);
 
       // Get user role from Firestore
       const userDocRef = doc(db, "users", user.uid);
@@ -28,10 +28,10 @@ function Login() {
         // Check the role of the user
         if (userData.role === "admin") {
           navigate("/admin/orders"); // Redirect to admin panel
-        } else if (userData.role === "operator" ) {
+        } else if (userData.role === "operator") {
           navigate("/users"); // Redirect to Users page
         } else {
-          navigate("/")
+          navigate("/"); // Redirect to home page for normal users
         }
       } else {
         setError("User does not exist.");
@@ -40,6 +40,34 @@ function Login() {
       setError("Login failed: " + error.message);
     }
   };
+
+  // Check if the user is already logged in when the component mounts
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Get user role from Firestore
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          console.log(userData);
+
+          // Automatically redirect to admin page if user is admin
+          if (userData.role === "admin") {
+            navigate("/admin/orders");
+          } else if (userData.role === "operator") {
+            navigate("/users");
+          } else {
+            navigate("/"); // Redirect normal users to home
+          }
+        }
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

@@ -4,14 +4,13 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase-config';
 
 function AddProducts() {
+  const [selectedProduct, setSelectedProduct] = useState('select'); // Set initial value to 'select'
   const [curtains, setCurtains] = useState([
-    { name: '', sellingPrice: '', buyingPrice: '', material: '', color: '', imageUrl: '' }
+    { name: '', sellingPrice: '', buyingPrice: '', size: '', material: '', color: '', imageUrl: '' }
   ]);
   const [currentCurtainIndex, setCurrentCurtainIndex] = useState(0);
   const [images, setImages] = useState([null]); // Store images for each curtain
   const [uploadProgress, setUploadProgress] = useState(0);
-
-  // Add state to track image source type
   const [imageSource, setImageSource] = useState(''); // Can be 'file' or 'camera'
 
   const handleChange = (e) => {
@@ -84,22 +83,24 @@ function AddProducts() {
 
       const uploadedCurtains = await Promise.all(uploadPromises);
 
-      const batch = collection(db, 'curtains');
+      // Dynamically select Firestore collection based on the selected product
+      const collectionName = selectedProduct.toLowerCase(); // E.g., 'curtains', 'shears', 'carpets', etc.
+      const batch = collection(db, collectionName);
       for (const curtain of uploadedCurtains) {
         await addDoc(batch, curtain);
       }
 
-      setCurtains([{ name: '', sellingPrice: '', buyingPrice: '', material: '', color: '', imageUrl: '' }]);
+      setCurtains([{ name: '', sellingPrice: '', size: '', buyingPrice: '', material: '', color: '', imageUrl: '' }]);
       setImages([null]);
-      alert('Curtains added successfully!');
+      alert(`${selectedProduct} added successfully!`);
     } catch (error) {
-      console.error('Error adding curtains: ', error);
-      alert('Failed to add curtains');
+      console.error(`Error adding ${selectedProduct}: `, error);
+      alert(`Failed to add ${selectedProduct}`);
     }
   };
 
   const addMoreCurtains = () => {
-    setCurtains([...curtains, { name: '', sellingPrice: '', buyingPrice: '', material: '', color: '', imageUrl: '' }]);
+    setCurtains([...curtains, { name: '', sellingPrice: '', size: '', buyingPrice: '', material: '', color: '', imageUrl: '' }]);
     setImages([...images, null]);
     setCurrentCurtainIndex(curtains.length);
   };
@@ -125,135 +126,160 @@ function AddProducts() {
     ));
   };
 
-  const [previewUrl, setPreviewUrl] = useState(null);
-
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-xl mb-4">Add Curtains</h2>
-      <form onSubmit={handleSubmit}>
-        {curtains[currentCurtainIndex] && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label>Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={curtains[currentCurtainIndex].name || ''}
-                onChange={handleChange}
-                className="border p-2 w-full"
-                required
-              />
-            </div>
-            <div>
-              <label>Selling Price:</label>
-              <input
-                type="number"
-                name="sellingPrice"
-                value={curtains[currentCurtainIndex].sellingPrice || ''}
-                onChange={handleChange}
-                className="border p-2 w-full"
-                required
-              />
-            </div>
-            <div>
-              <label>Buying Price:</label>
-              <input
-                type="number"
-                name="buyingPrice"
-                value={curtains[currentCurtainIndex].buyingPrice || ''}
-                onChange={handleChange}
-                className="border p-2 w-full"
-                required
-              />
-            </div>
-            <div>
-              <label>Material:</label>
-              <input
-                type="text"
-                name="material"
-                value={curtains[currentCurtainIndex].material || ''}
-                onChange={handleChange}
-                className="border p-2 w-full"
-                required
-              />
-            </div>
-            <div>
-              <label>Color:</label>
-              <input
-                type="text"
-                name="color"
-                value={curtains[currentCurtainIndex].color || ''}
-                onChange={handleChange}
-                className="border p-2 w-full"
-                required
-              />
-            </div>
+    <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6 mb-6 border border-gray-300 h-[90vh]">
+      <h2 className="text-xl mb-4">Select Product to Add</h2>
+      <select
+        value={selectedProduct}
+        onChange={(e) => setSelectedProduct(e.target.value)}
+        className="border p-2 mb-4"
+        id="select"
+      >
+        <option value="select">Select (Default)</option>
+        <option value="curtains">Curtains</option>
+        <option value="shears">Shears</option>
+        <option value="carpets">Carpets</option>
+      </select>
 
-            <div>
-              <label>Image:</label>
-              <input
-                type="file"
-                onChange={handleImageChange}
-                className="border p-2 w-full"
-                accept="image/*"
-              />
-            </div>
+      {selectedProduct !== 'select' && (
+        <div>
+          {/* Dynamic heading based on selected product */}
+          <h2 className="text-xl mb-4">Add {selectedProduct.charAt(0).toUpperCase() + selectedProduct.slice(1)}</h2>
+          <form onSubmit={handleSubmit}>
+            {curtains[currentCurtainIndex] && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label>Name:</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={curtains[currentCurtainIndex].name || ''}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Selling Price:</label>
+                  <input
+                    type="number"
+                    name="sellingPrice"
+                    value={curtains[currentCurtainIndex].sellingPrice || ''}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Size:</label>
+                  <input
+                    type="number"
+                    name="size"
+                    value={curtains[currentCurtainIndex].size || ''}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Buying Price:</label>
+                  <input
+                    type="number"
+                    name="buyingPrice"
+                    value={curtains[currentCurtainIndex].buyingPrice || ''}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Material:</label>
+                  <input
+                    type="text"
+                    name="material"
+                    value={curtains[currentCurtainIndex].material || ''}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Color:</label>
+                  <input
+                    type="text"
+                    name="color"
+                    value={curtains[currentCurtainIndex].color || ''}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                    required
+                  />
+                </div>
 
-            <div>
-              <label>Take Photo:</label>
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleImageCapture}
-                className="border p-2 w-full"
-              />
-            </div>
+                <div>
+                  <label>Image:</label>
+                  <input
+                    type="file"
+                    onChange={handleImageChange}
+                    className="border p-2 w-full"
+                    accept="image/*"
+                  />
+                </div>
 
-            {curtains[currentCurtainIndex].imageUrl && (
-              <div className="mt-4">
-                <img src={curtains[currentCurtainIndex].imageUrl} alt="Selected" className="max-w-xs" />
+                <div>
+                  <label>Take Photo:</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleImageCapture}
+                    className="border p-2 w-full"
+                  />
+                </div>
+
+                {curtains[currentCurtainIndex].imageUrl && (
+                  <div className="mt-4">
+                    <img src={curtains[currentCurtainIndex].imageUrl} alt="Selected" className="max-w-xs" />
+                  </div>
+                )}
               </div>
             )}
+
+            {uploadProgress > 0 && (
+              <div className="w-full bg-gray-200 mt-2">
+                <div
+                  className="bg-blue-500 h-2"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            )}
+
+            <div className="mt-4">
+              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+                Add {selectedProduct}
+              </button>
+              <button type="button" onClick={addMoreCurtains} className="bg-green-500 text-white py-2 px-4 rounded ml-2">
+                Add More
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-4 flex justify-between">
+            <button onClick={() => handlePrevNext('prev')} className="bg-gray-500 text-white py-2 px-4 rounded">
+              Prev
+            </button>
+            <div className="flex">{renderPaginationNumbers()}</div>
+            <button onClick={() => handlePrevNext('next')} className="bg-gray-500 text-white py-2 px-4 rounded">
+              Next
+            </button>
           </div>
-        )}
-
-        {uploadProgress > 0 && (
-          <div className="w-full bg-gray-200 mt-2">
-            <div
-              className="bg-blue-500 h-2"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
-        )}
-
-        <div className="flex justify-between mt-4">
-          <button type="button" onClick={() => handlePrevNext('prev')} className="bg-gray-500 text-white px-4 py-2 rounded">
-            Prev
-          </button>
-          <button type="button" onClick={() => handlePrevNext('next')} className="bg-gray-500 text-white px-4 py-2 rounded">
-            Next
-          </button>
         </div>
-
-        <div className="flex justify-between mt-4">
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-            Add Curtains
-          </button>
-          <button type="button" onClick={addMoreCurtains} className="bg-green-500 text-white px-4 py-2 rounded">
-            Add More Curtains
-          </button>
-        </div>
-
-        <div className="flex justify-center mt-4">
-          {renderPaginationNumbers()}
-        </div>
-      </form>
+      )}
     </div>
   );
 }
 
 export default AddProducts;
+
 
 
 

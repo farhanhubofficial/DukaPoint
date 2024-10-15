@@ -42,18 +42,18 @@ function AdminCurtainTilePage({ product }) {
         />
         {/* Curtain Details */}
         <h1 className="font-bold text-xl lg:text-sm">Name: {product.name}</h1>
-        <h1>Price: ksh {product.price}</h1>
+        <h1>Price: ksh {product.sellingPrice}</h1>
         <h1>Material: {product.material}</h1>
         <h1>Available Quantity: <span className="font-bold">{product.size} Mtrs</span></h1>
 
         {/* Delete and Edit Buttons */}
         <div className="flex justify-between w-full mt-3 px-4">
           <MdDelete
-            className="text-red-600 hover:text-red-800 cursor-pointer text-2xl"
+            className="text-red-600 hover:text-red-800 cursor-pointer text-xl sm:text-2xl" // Adjusted size for better mobile view
             onClick={() => handleDelete(product.id)} // Pass the product ID to handleDelete
           />
           <CiEdit
-            className="text-blue-600 hover:text-blue-800 cursor-pointer text-2xl"
+            className="text-blue-600 hover:text-blue-800 cursor-pointer text-xl sm:text-2xl" // Adjusted size for consistency
             onClick={handleEdit} // Handle edit by navigating to edit page
           />
         </div>

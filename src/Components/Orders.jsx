@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
-import { collection, deleteDoc, doc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { collection, deleteDoc, doc, setDoc, updateDoc, onSnapshot, addDoc } from 'firebase/firestore';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
@@ -25,49 +25,66 @@ function Orders() {
   const handleConfirmSale = async (orderId, email) => {
     try {
       const orderToDelete = orders.find(order => order.id === orderId && order.email === email);
-  
+
       if (!orderToDelete) {
         console.error(`Order with id ${orderId} and email ${email} not found.`);
         return;
       }
-  
-      const sellingPriceInput = sellingPrices[orderId]; // Check the input field
-      const currentSellingPrice = orderToDelete.totalSellingPrice; // The current selling price stored in the order
-  
-      // Check if the input field is filled but not set yet (compared to the saved totalSellingPrice)
+
+      const sellingPriceInput = sellingPrices[orderId];
+      const currentSellingPrice = orderToDelete.totalSellingPrice;
+
       if (sellingPriceInput && sellingPriceInput !== currentSellingPrice.toString()) {
         alert(`You have entered a new total selling price but haven't set it yet for order ${orderId}. Please click "Set" first.`);
-        return; // Prevent further execution if the price is not set
+        return;
       }
-  
+
       const orderRef = doc(db, 'orders', orderId);
-  
-      // Calculate profit or loss
-      const sellingPrice = currentSellingPrice; // Use the stored selling price
-      const buyingPrice = orderToDelete.totalBuyingPrice;
+      const sellingPrice = currentSellingPrice;
+      const buyingPrice = orderToDelete.totalBuyingPrice; // This should be defined in the order
       const profit = sellingPrice - buyingPrice;
-      console.log("sellingPrice:", sellingPrice, "to buyingPrice", buyingPrice);
-  
-      // Generate a unique ID for the profit entry
-      const profitId = `${orderId}_${Date.now()}`;
-  
-      // Update profits or losses in Firestore
+
+      // Format timestamp
+      const timestamp = new Date().toLocaleString('en-US', { timeZone: 'UTC' });
+
+      // Handle profit/loss
       if (profit > 0) {
-        const profitsRef = doc(db, 'profits', profitId);
-        await setDoc(profitsRef, { profit: profit, orderId: orderId }, { merge: true });
+        const profitsRef = doc(db, 'profits', `${orderId}_${Date.now()}`);
+        await setDoc(profitsRef, {
+          amount: profit,
+          productName: orderToDelete.name,
+          timestamp: timestamp,
+        }, { merge: true });
       } else if (profit < 0) {
-        const lossesRef = doc(db, 'loss', profitId);
-        await setDoc(lossesRef, { loss: -profit, orderId: orderId }, { merge: true });
+        const lossesRef = doc(db, 'losses', `${orderId}_${Date.now()}`);
+        await setDoc(lossesRef, {
+          amount: -profit,
+          productName: orderToDelete.name,
+          timestamp: timestamp,
+        }, { merge: true });
       }
-  
+
+      // Prepare sales data
+      const salesData = {
+        imageUrl: orderToDelete.imageUrl, // Assuming this field exists in the order
+        material: orderToDelete.material, // Assuming this field exists in the order
+        name: orderToDelete.displayName,
+        productName: orderToDelete.name,
+        sellingPrice: sellingPrice.toString(),
+        buyingPrice: buyingPrice.toString(), // Include calculated buying price
+        size: orderToDelete.size,
+        timestamp: timestamp,
+      };
+
+      const salesCollection = collection(db, 'sales');
+      await addDoc(salesCollection, salesData);
+
       // Delete the order after processing profit/loss
       await deleteDoc(orderRef);
     } catch (error) {
       console.error("Error confirming sale: ", error);
     }
   };
-  
-
 
   // Handle selling price input change
   const handleSellingPriceChange = (id, value) => {
@@ -120,14 +137,34 @@ function Orders() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10 relative">
+    <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6 mb-6 border border-gray-300 relative">
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-800">Orders</h1>
 
       {orders.length > 0 ? (
-        <div className="flex space-x-8">
-          
+        <div className="flex flex-col lg:flex-row lg:space-x-8">
+          {/* Calculator Section */}
+          <div className="lg:w-1/3 mb-8 lg:mb-0">
+            <div className="mt-6 p-4 border-t border-gray-300">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Simple Calculator</h3>
+              <input
+                type="text" // Input type as text to allow expressions
+                value={calcInput}
+                onChange={handleCalcInput}
+                placeholder="Enter calculation (e.g., 3+3)"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300 mb-4"
+              />
+              <p className="mt-4 font-bold text-lg">Result: {calcResult}</p>
+              <button
+                onClick={() => setCalcInput("")} // Only reset the input
+                className="mt-4 bg-red-600 text-white h-10 w-32 rounded-lg hover:bg-red-700"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+
           {/* Orders Section */}
-          <div className="w-2/3">
+          <div className="lg:w-2/3">
             <ul>
               {orders.map((order, index) => (
                 <li key={index} className="mb-4 p-4 border border-gray-300 rounded">
@@ -170,28 +207,6 @@ function Orders() {
               ))}
             </ul>
           </div>
-
-          {/* Calculator Section */}
-          <div className="w-1/3">
-            <div className="mt-6 p-4 border-t border-gray-300">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Simple Calculator</h3>
-              <input
-                type="text" // Input type as text to allow expressions
-                value={calcInput}
-                onChange={handleCalcInput}
-                placeholder="Enter calculation (e.g., 3+3)"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300 mb-4"
-              />
-              <p className="mt-4 font-bold text-lg">Result: {calcResult}</p>
-              <button
-                onClick={() => setCalcInput("")} // Only reset the input
-                className="mt-4 bg-red-600 text-white h-10 w-32 rounded-lg hover:bg-red-700"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-
         </div>
       ) : (
         <p className="text-center h-[50vh] text-gray-600">No orders placed.</p>

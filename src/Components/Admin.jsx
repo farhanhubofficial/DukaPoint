@@ -1,26 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useFetchSalesQuery } from '../Store/Api/salesSlice';
 import { useFetchProfitsQuery } from '../Store/Api/profitSlice';
 import { useFetchLossesQuery } from '../Store/Api/lossesSlice';
 import { useFetchCurtainsQuery } from '../Store/Api/CurtSlice';
 import { FaRegUser, FaChevronDown } from "react-icons/fa";
-import { auth } from '../firebase-config';
+import { IoMdMenu } from 'react-icons/io';
+import { MdClose } from 'react-icons/md';
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 function Admin() {
   const navigate = useNavigate();
+  const location = useLocation();  // Get the current location
   const orders = useSelector((state) => state.orders.items);
   const { data: sales = [] } = useFetchSalesQuery();
   const { data: profits = [] } = useFetchProfitsQuery();
   const { data: losses = [] } = useFetchLossesQuery();
   const { data: allcurtains = [] } = useFetchCurtainsQuery();
-  
+
   const [search, setSearch] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [productDropdownOpen, setProductDropdownOpen] = useState(false); // For Manage Products dropdown
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const user = auth.currentUser;
+  const [user, setUser] = useState(null); // Track user state
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+  const auth = getAuth();
+
   const displayName = user?.displayName || "Admin";
+  console.log(user)
 
   // Calculate total sales, profits, and losses
   const totalSales = sales.reduce((acc, sale) => acc + parseFloat(sale.sellingPrice || 0), 0);
@@ -32,11 +48,24 @@ function Admin() {
   );
 
   const handleDropdownToggle = () => {
-    setDropdownOpen(prev => !prev);
+    setDropdownOpen((prev) => !prev);
   };
 
-  const handleLogout = () => {
-    // Handle logout logic here
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);  // Sign out the user
+      navigate('/login');  // Redirect to login page after logout
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
+  const toggleProductDropdown = () => {
+    setProductDropdownOpen((prev) => !prev);
   };
 
   // Handle click outside of dropdown to close it
@@ -45,71 +74,169 @@ function Admin() {
       if (dropdownOpen && !event.target.closest('.dropdown-container')) {
         setDropdownOpen(false);
       }
+      if (productDropdownOpen && !event.target.closest('.manage-products-dropdown')) {
+        setProductDropdownOpen(false);
+      }
     };
-    
-    document.addEventListener('click', handleClickOutside);
+
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dropdownOpen]);
+  }, [dropdownOpen, productDropdownOpen]);
+
+  // Map the route pathnames to their respective page titles
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case '/admin/adminCategories':
+        return 'Dashboard';
+      case '/admin/AdminCurtainsPage':
+        return 'Manage Products';
+      case '/admin/salesOverview':
+        return 'Sales Overview';
+      case '/admin/orders':
+        return 'Orders';
+      case '/admin/shears':
+        return 'Shears';
+      case '/admin/carpets':
+        return 'Carpets';
+      case '/admin/pillows':
+        return 'Pillows';
+      case '/admin/duvets':
+        return 'Duvets';
+      case '/admin/accountSettings':
+        return 'Account Settings';
+      case '/admin/helpCenter':
+        return 'Help Center';
+      default:
+        return 'Admin Page';
+    }
+  };
 
   return (
-    <div className="flex bg-gray-100">
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className="w-64 h-screen bg-white shadow-md p-4 border-r border-gray-300 fixed z-20">
-        <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
-        <ul className="flex flex-col gap-4">
-          <li>
-            <button className="w-full text-left bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300" onClick={() => navigate('/admin/AdminCurtainsPage')}>
-              Curtains
-            </button>
-          </li>
-          <li>
-            <button className="w-full text-left bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300" onClick={() => navigate('/admin/salesOverview')}>
-              Sales Overview
-            </button>
-          </li>
-          <li>
-            <button className="w-full text-left bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300" onClick={() => navigate('/admin/adminCategories')}>
-              Categories
-            </button>
-          </li>
-          <li className="relative">
-            <button className="w-full text-left bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300" onClick={() => navigate('/admin/orders')}>
-              Orders
-            </button>
-            {orders.length > 0 && (
-              <span className="absolute top-0 right-0 bg-green-600 text-white rounded-full h-6 w-6 flex items-center justify-center text-sm">
-                {orders.length}
-              </span>
-            )}
-          </li>
-        </ul>
+      <div
+        className={`fixed top-0 left-0 z-40 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`}
+      >
+        {/* Close Icon for small screens */}
+        <div className="lg:hidden flex justify-end p-4">
+          <MdClose className="text-3xl cursor-pointer" onClick={toggleSidebar} />
+        </div>
+
+        {/* Sidebar Content */}
+        <div className="p-4 font-bold text-xl border-b">Admin Panel</div>
+        <nav className="mt-4">
+          <ul className="space-y-4 px-4 ">
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/adminCategories')}>
+                Dashboard
+              </button>
+            </li>
+            <li className="relative text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={toggleProductDropdown}>
+                Manage Products
+              </button>
+              {productDropdownOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 border border-gray-300 z-50 manage-products-dropdown">
+                  <ul>
+                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/addcurtains')}>
+                      Add Products
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/AdminCurtainsPage')}>
+                      Curtains
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/shears')}>
+                      Shears
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/carpets')}>
+                      Carpets
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/pillows')}>
+                      Pillows
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/duvets')}>
+                      Duvets
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </li>
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/salesOverview')}>
+                Sales Overview
+              </button>
+            </li>
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/adminCategories')}>
+                Categories
+              </button>
+            </li>
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/adminCategories')}>
+                Manage Users 
+              </button>
+            </li>
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/adminCategories')}>
+                Favourites
+              </button>
+            </li>
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/adminCategories')}>
+                Settings
+              </button>
+            </li>
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/adminCategories')}>
+                Privacy
+              </button>
+            </li>
+            <li className="relative text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/orders')}>
+                Orders
+              </button>
+              {orders.length > 0 && (
+                <span className="absolute top-0 right-0 bg-green-600 text-white rounded-full h-6 w-6 flex items-center justify-center text-sm">
+                  {orders.length}
+                </span>
+              )}
+            </li>
+            {/* More items... */}
+            <div className="p-4 text-xl border-t">
+              <button onClick={handleLogout}>Sign Out</button>
+            </div>
+          </ul>
+        </nav>
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 w-full bg-white shadow-md z-10 h-16 flex items-center px-4 border-b border-gray-300 justify-between">
-        <h1 className="text-xl font-bold">Admin Dashboard</h1>
+      <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-md p-4 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <IoMdMenu className="text-3xl lg:hidden cursor-pointer" onClick={toggleSidebar} />
+          <h1 className="font-bold text-xl text-gray-700">
+            {getPageTitle()}
+          </h1>
+        </div>
 
-        {/* Right side of the header */}
-        <div className="relative dropdown-container flex items-center gap-4 mr-10">
-          <FaRegUser className="text-xl" />
-          <div className='flex flex-col'>
-            <span className='font-bold'>{displayName}</span>
-            <span className='text-sm'>Admin</span>
-          </div>
-          <FaChevronDown className="cursor-pointer text-xl" onClick={handleDropdownToggle} />
+        {/* User Profile and Dropdown */}
+        <div className="relative">
+          <button className="flex items-center gap-2" onClick={handleDropdownToggle}>
+            <FaRegUser className="text-xl" />
+            <span>{displayName}</span>
+            <FaChevronDown className="text-sm" />
+          </button>
+
           {dropdownOpen && (
-            <div className="absolute right-0 top-5 mt-2 w-48 bg-white shadow-lg rounded-md py-2 border border-gray-300 z-20">
+            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 border border-gray-300 z-50 dropdown-container">
               <ul>
                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/accountSettings')}>
                   Account Settings
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/admin/helpCenter')}>
-                  Help Center
-                </li>
                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleLogout}>
-                  Logout
+                  Sign Out
                 </li>
               </ul>
             </div>
@@ -118,12 +245,9 @@ function Admin() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-grow ml-64 p-6 flex flex-col bg-gray-200 mt-16">
-        <h1 className="text-3xl font-bold mb-4">Admin Page</h1>
-        <div className="bg-white shadow-md border border-gray-300 p-6 rounded-lg">
-          <Outlet />
-        </div>
-      </div>
+      <main className="flex-1 overflow-y-auto mt-16 lg:ml-64 p-4">
+        <Outlet />
+      </main>
     </div>
   );
 }

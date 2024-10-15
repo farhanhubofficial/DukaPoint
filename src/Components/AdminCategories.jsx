@@ -98,7 +98,7 @@ function AdminCategories() {
       </div>
 
       {/* Item Tiles */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 h-[500px] overflow-y-scroll">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[500px] overflow-y-scroll">
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => (
             <div

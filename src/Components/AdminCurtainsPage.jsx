@@ -23,27 +23,33 @@ function AdminCurtainsPage() {
     fetchCurtains(); // Call the fetch function
   }, []); // Empty dependency array ensures this runs once on component mount
 
+  const handlePrint = () => {
+    window.print(); // Trigger the print dialog
+  };
+
   return (
     <div className='relative'>
       <div>
         {allcurtains && allcurtains.length ? (
           <div className='relative'>
-            <div className='grid grid-cols-2 lg:grid-cols-4'>
+            <button onClick={handlePrint} className='bg-blue-500 text-white rounded-md px-4 py-2 mb-4'>
+              Print
+            </button>
+            <div className='grid grid-cols-1 lg:grid-cols-4'>
               {allcurtains.map((productItem) => (
                 <AdminCurtainTilePage key={productItem.id} product={productItem} />
               ))}
             </div>
             {/* Add More button that links to adding curtains */}
-            <Link to='/curtains/Addcurtains'>
+            {/* <Link to='/admin/Addcurtains'>
               <button className='fixed bottom-0 right-0 text-white bg-black font-bold text-xl mt-9 ml-36 p-1 rounded-lg h-24'>
                 Add More +
               </button>
-            </Link>
+            </Link> */}
           </div>
         ) : (
           <p>No curtains available</p>
         )}
-        <h1>hhh</h1>
       </div>
     </div>
   );

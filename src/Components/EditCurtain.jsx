@@ -10,7 +10,7 @@ function EditCurtain() {
 
   // Individual state fields for the curtain properties
   const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
+  const [sellingPrice, setSellingPrice] = useState(''); // Updated field for sellingPrice
   const [material, setMaterial] = useState('');
   const [image, setImage] = useState('');
   const [description, setDescription] = useState('');
@@ -28,9 +28,9 @@ function EditCurtain() {
           const foundCurtain = curtainSnap.data();
           setCurtain(foundCurtain);
           setName(foundCurtain.name || '');
-          setPrice(foundCurtain.price || '');
+          setSellingPrice(foundCurtain.sellingPrice || ''); // Fetch sellingPrice from Firestore
           setMaterial(foundCurtain.material || '');
-          setImage(foundCurtain.image || '');
+          setImage(foundCurtain.imageUrl || '');
           setDescription(foundCurtain.description || '');
           setSize(foundCurtain.size || '');
           setColor(foundCurtain.color || '');
@@ -66,7 +66,7 @@ function EditCurtain() {
         const curtainRef = doc(db, 'curtains', id); // Reference to the curtain document
         await updateDoc(curtainRef, {
           name,
-          price,
+          sellingPrice, // Update sellingPrice in Firestore
           material,
           image,
           description,
@@ -98,9 +98,9 @@ function EditCurtain() {
         />
         <input
           type="number"
-          value={price}
-          onChange={e => setPrice(e.target.value)}
-          placeholder="Price"
+          value={sellingPrice} // Updated to sellingPrice
+          onChange={e => setSellingPrice(e.target.value)} // Update sellingPrice state
+          placeholder="Selling Price"
           className="p-2 border-2 border-gray-300 rounded-md"
         />
         <input
