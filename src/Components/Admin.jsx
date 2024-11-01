@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useFetchSalesQuery } from '../Store/Api/salesSlice';
@@ -24,19 +24,20 @@ function Admin() {
   const [productDropdownOpen, setProductDropdownOpen] = useState(false); // For Manage Products dropdown
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const sidebarRef = useRef(null);
+  const auth = getAuth();
   const [user, setUser] = useState(null); // Track user state
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
 
     return () => unsubscribe();
-  }, []);
-  const auth = getAuth();
+  }, [auth]);
+  
 
   const displayName = user?.displayName || "Admin";
-  console.log(user)
 
   // Calculate total sales, profits, and losses
   const totalSales = sales.reduce((acc, sale) => acc + parseFloat(sale.sellingPrice || 0), 0);
@@ -77,13 +78,29 @@ function Admin() {
       if (productDropdownOpen && !event.target.closest('.manage-products-dropdown')) {
         setProductDropdownOpen(false);
       }
+      // Close sidebar if clicked outside
+      if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsSidebarOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dropdownOpen, productDropdownOpen]);
+  }, [dropdownOpen, productDropdownOpen, isSidebarOpen]);
+
+  // Close sidebar on route change
+  useEffect(() => {
+    const unlisten = () => {
+      setIsSidebarOpen(false);
+    };
+
+    const unlistenFromLocationChange = location.pathname; // Track location changes
+    return () => {
+      unlisten(); // Clean up on unmount
+    };
+  }, [location]);
 
   // Map the route pathnames to their respective page titles
   const getPageTitle = () => {
@@ -117,6 +134,7 @@ function Admin() {
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div
+        ref={sidebarRef}
         className={`fixed top-0 left-0 z-40 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
@@ -127,7 +145,7 @@ function Admin() {
         </div>
 
         {/* Sidebar Content */}
-        <div className="p-4 font-bold text-xl border-b">Admin Panel</div>
+        <div className="p-[1.62rem] font-bold text-xl border-b">Admin Panel</div>
         <nav className="mt-4">
           <ul className="space-y-4 px-4 ">
             <li className="text-gray-700 hover:text-blue-500 transition-colors">
@@ -175,7 +193,12 @@ function Admin() {
               </button>
             </li>
             <li className="text-gray-700 hover:text-blue-500 transition-colors">
-              <button onClick={() => navigate('/admin/adminCategories')}>
+              <button onClick={() => navigate('/admin/manageshops')}>
+                Shops
+              </button>
+            </li>
+            <li className="text-gray-700 hover:text-blue-500 transition-colors">
+              <button onClick={() => navigate('/admin/manageusers')}>
                 Manage Users 
               </button>
             </li>
@@ -225,10 +248,16 @@ function Admin() {
         <div className="relative">
           <button className="flex items-center gap-2" onClick={handleDropdownToggle}>
             <FaRegUser className="text-xl" />
+            <div className='flex flex-col'>
             <span>{displayName}</span>
+            <span>Admin</span>
+            </div>
+          
             <FaChevronDown className="text-sm" />
           </button>
 
+          {/* Display user's role below the display name */}
+         
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 border border-gray-300 z-50 dropdown-container">
               <ul>

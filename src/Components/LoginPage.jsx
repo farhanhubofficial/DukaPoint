@@ -28,8 +28,8 @@ function Login() {
         // Check the role of the user
         if (userData.role === "admin") {
           navigate("/admin/orders"); // Redirect to admin panel
-        } else if (userData.role === "operator") {
-          navigate("/users"); // Redirect to Users page
+        } else if (userData.role === "attendant") {
+          navigate("/user"); // Redirect to Users page
         } else {
           navigate("/"); // Redirect to home page for normal users
         }

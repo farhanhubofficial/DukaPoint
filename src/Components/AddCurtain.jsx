@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase-config';
 
 function AddProducts() {
-  const [selectedProduct, setSelectedProduct] = useState('select'); // Set initial value to 'select'
+  const [selectedProduct, setSelectedProduct] = useState('select');
   const [curtains, setCurtains] = useState([
-    { name: '', sellingPrice: '', buyingPrice: '', size: '', material: '', color: '', imageUrl: '' }
+    { name: '', sellingPrice: '', buyingPrice: '', size: '', material: '', color: '', imageUrl: '', shop: '' }
   ]);
   const [currentCurtainIndex, setCurrentCurtainIndex] = useState(0);
-  const [images, setImages] = useState([null]); // Store images for each curtain
+  const [images, setImages] = useState([null]);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [imageSource, setImageSource] = useState(''); // Can be 'file' or 'camera'
+  const [shops, setShops] = useState([]); // State to hold shop names
+
+  useEffect(() => {
+    const fetchShops = async () => {
+      const shopsCollection = collection(db, 'shopnames'); // Change to your shopnames collection
+      const querySnapshot = await getDocs(shopsCollection);
+      const shopsList = querySnapshot.docs.map(doc => doc.data().name); // Assuming shop document has a 'name' field
+      setShops(shopsList);
+    };
+
+    fetchShops(); // Fetch shops when component mounts
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,9 +37,7 @@ function AddProducts() {
       const newImages = [...images];
       newImages[currentCurtainIndex] = file;
       setImages(newImages);
-      setImageSource('file'); // Set image source as file
 
-      // Update the current curtain with the file URL
       const updatedCurtains = [...curtains];
       updatedCurtains[currentCurtainIndex].imageUrl = URL.createObjectURL(file);
       setCurtains(updatedCurtains);
@@ -38,12 +47,10 @@ function AddProducts() {
   const handleImageCapture = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageSource('camera'); // Set image source as camera
       const newImages = [...images];
       newImages[currentCurtainIndex] = file;
       setImages(newImages);
 
-      // Update the current curtain with the captured photo URL
       const updatedCurtains = [...curtains];
       updatedCurtains[currentCurtainIndex].imageUrl = URL.createObjectURL(file);
       setCurtains(updatedCurtains);
@@ -83,14 +90,19 @@ function AddProducts() {
 
       const uploadedCurtains = await Promise.all(uploadPromises);
 
-      // Dynamically select Firestore collection based on the selected product
-      const collectionName = selectedProduct.toLowerCase(); // E.g., 'curtains', 'shears', 'carpets', etc.
+      const collectionName = selectedProduct.toLowerCase();
       const batch = collection(db, collectionName);
+
       for (const curtain of uploadedCurtains) {
+        // Add to main collection
         await addDoc(batch, curtain);
+
+        // Add to corresponding shop's subcollection
+        const shopSubcollectionRef = collection(db, `/shops/${curtain.shop}/A${selectedProduct.toUpperCase()} SHOP`);
+        await addDoc(shopSubcollectionRef, curtain); // Add the same curtain data to the shop's subcollection
       }
 
-      setCurtains([{ name: '', sellingPrice: '', size: '', buyingPrice: '', material: '', color: '', imageUrl: '' }]);
+      setCurtains([{ name: '', sellingPrice: '', buyingPrice: '', size: '', material: '', color: '', imageUrl: '', shop: '' }]);
       setImages([null]);
       alert(`${selectedProduct} added successfully!`);
     } catch (error) {
@@ -100,7 +112,7 @@ function AddProducts() {
   };
 
   const addMoreCurtains = () => {
-    setCurtains([...curtains, { name: '', sellingPrice: '', size: '', buyingPrice: '', material: '', color: '', imageUrl: '' }]);
+    setCurtains([...curtains, { name: '', sellingPrice: '', buyingPrice: '', size: '', material: '', color: '', imageUrl: '', shop: '' }]);
     setImages([...images, null]);
     setCurrentCurtainIndex(curtains.length);
   };
@@ -127,7 +139,7 @@ function AddProducts() {
   };
 
   return (
-    <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6 mb-6 border border-gray-300 h-[90vh]">
+    <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6 mb-6 border border-gray-300">
       <h2 className="text-xl mb-4">Select Product to Add</h2>
       <select
         value={selectedProduct}
@@ -143,7 +155,6 @@ function AddProducts() {
 
       {selectedProduct !== 'select' && (
         <div>
-          {/* Dynamic heading based on selected product */}
           <h2 className="text-xl mb-4">Add {selectedProduct.charAt(0).toUpperCase() + selectedProduct.slice(1)}</h2>
           <form onSubmit={handleSubmit}>
             {curtains[currentCurtainIndex] && (
@@ -216,6 +227,24 @@ function AddProducts() {
                 </div>
 
                 <div>
+                  <label>Shop:</label>
+                  <select
+                    name="shop"
+                    value={curtains[currentCurtainIndex].shop || ''}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                    required
+                  >
+                    <option value="">Select Shop</option>
+                    {shops.map(shop => (
+                      <option key={shop} value={shop}>
+                        {shop} {/* Assuming shop name is in the data */}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label>Image:</label>
                   <input
                     type="file"
@@ -279,6 +308,9 @@ function AddProducts() {
 }
 
 export default AddProducts;
+
+
+
 
 
 

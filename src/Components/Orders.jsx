@@ -22,69 +22,76 @@ function Orders() {
   }, []);
 
   // Handle confirming the sale
-  const handleConfirmSale = async (orderId, email) => {
-    try {
+ // Handle confirming the sale
+// Handle confirming the sale
+const handleConfirmSale = async (orderId, email) => {
+  try {
       const orderToDelete = orders.find(order => order.id === orderId && order.email === email);
 
       if (!orderToDelete) {
-        console.error(`Order with id ${orderId} and email ${email} not found.`);
-        return;
+          console.error(`Order with id ${orderId} and email ${email} not found.`);
+          return;
       }
 
       const sellingPriceInput = sellingPrices[orderId];
       const currentSellingPrice = orderToDelete.totalSellingPrice;
 
       if (sellingPriceInput && sellingPriceInput !== currentSellingPrice.toString()) {
-        alert(`You have entered a new total selling price but haven't set it yet for order ${orderId}. Please click "Set" first.`);
-        return;
+          alert(`You have entered a new total selling price but haven't set it yet for order ${orderId}. Please click "Set" first.`);
+          return;
       }
 
       const orderRef = doc(db, 'orders', orderId);
       const sellingPrice = currentSellingPrice;
-      const buyingPrice = orderToDelete.totalBuyingPrice; // This should be defined in the order
+      const buyingPrice = orderToDelete.totalBuyingPrice; // Add buyingPrice here
       const profit = sellingPrice - buyingPrice;
 
       // Format timestamp
       const timestamp = new Date().toLocaleString('en-US', { timeZone: 'UTC' });
 
-      // Handle profit/loss
-      if (profit > 0) {
-        const profitsRef = doc(db, 'profits', `${orderId}_${Date.now()}`);
-        await setDoc(profitsRef, {
-          amount: profit,
-          productName: orderToDelete.name,
-          timestamp: timestamp,
-        }, { merge: true });
-      } else if (profit < 0) {
-        const lossesRef = doc(db, 'losses', `${orderId}_${Date.now()}`);
-        await setDoc(lossesRef, {
-          amount: -profit,
-          productName: orderToDelete.name,
-          timestamp: timestamp,
-        }, { merge: true });
-      }
-
-      // Prepare sales data
+      // Prepare sales data according to specified format
       const salesData = {
-        imageUrl: orderToDelete.imageUrl, // Assuming this field exists in the order
-        material: orderToDelete.material, // Assuming this field exists in the order
-        name: orderToDelete.displayName,
-        productName: orderToDelete.name,
-        sellingPrice: sellingPrice.toString(),
-        buyingPrice: buyingPrice.toString(), // Include calculated buying price
-        size: orderToDelete.size,
-        timestamp: timestamp,
+          imageUrl: orderToDelete.imageUrl,
+          material: orderToDelete.material,
+          name: orderToDelete.displayName,
+          productId: orderToDelete.id, // Assuming order.id is the productId
+          productName: orderToDelete.name,
+          profitOrLoss: profit,
+          saleId: Date.now(), // Unique sale ID based on current timestamp
+          sellingPrice: sellingPrice, // Directly use the number
+          buyingPrice: buyingPrice, // Include buying price
+          size: orderToDelete.size,
+          timestamp: timestamp,
       };
 
       const salesCollection = collection(db, 'sales');
       await addDoc(salesCollection, salesData);
 
+      // Handle profit/loss entry
+      if (profit > 0) {
+          const profitsRef = doc(db, 'profits', `${orderId}_${Date.now()}`);
+          await setDoc(profitsRef, {
+              amount: profit,
+              productName: orderToDelete.name,
+              timestamp: timestamp,
+          }, { merge: true });
+      } else if (profit < 0) {
+          const lossesRef = doc(db, 'losses', `${orderId}_${Date.now()}`);
+          await setDoc(lossesRef, {
+              amount: -profit,
+              productName: orderToDelete.name,
+              timestamp: timestamp,
+          }, { merge: true });
+      }
+
       // Delete the order after processing profit/loss
       await deleteDoc(orderRef);
-    } catch (error) {
+  } catch (error) {
       console.error("Error confirming sale: ", error);
-    }
-  };
+  }
+};
+
+
 
   // Handle selling price input change
   const handleSellingPriceChange = (id, value) => {

@@ -6,6 +6,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import Home from './Home';
+import User from './User';
 import Curtains from './Curtains';
 import About from './About';
 import Vision from './Vision';
@@ -21,13 +22,19 @@ import AdminCurtainsPage from './AdminCurtainsPage';
 import EditCurtain from './EditCurtain';
 import ManageSalesPage from './ManageSalesPage';
 import SalesHistory from './SalesHistory';
-import Users from './Users';
+import Users from './User';
 import Orders from './Orders';
 import SalesOverview from './SalesOverview';
 import AdminCategories from './AdminCategories';
 import AddProducts from './AddProducts';
 import Sales from './Sales';
-
+import UserDashboard from './UserDashboard';
+import UserSalesOverview from './UserSalesOverview';
+import UserCategory from './UserCategory';
+import ManageUsers from './ManageUsers';
+import ShopSelection from './ShopSelection';
+import ManageShops from './ManageShops';
+import Home1 from './Home1';
 function ConnectivePage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,7 +76,7 @@ function ConnectivePage() {
   }, [navigate, hasRedirected]);
 
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isUserRoute = location.pathname.startsWith('/users');
+  const isUserRoute = location.pathname.startsWith('/user');
   const showHeader = isAdminRoute || isUserRoute;
 
   if (isLoading) {
@@ -80,13 +87,22 @@ function ConnectivePage() {
     <div className='relative min-h-screen flex flex-col'>
       {/* Conditionally render Header and Footer based on the current route */}
       {!showHeader && (
-        <div className='sticky top-0 z-50'>
-          <Header />
-        </div>
+    <div className='sticky z-50 top-0'>
+    <Header />
+  </div>
+  
+     
       )}
 
       <main className='flex-grow'>
         <Routes>
+          <Route path='user' element={<User />}>
+            <Route path='dashboard' element={<UserDashboard />} />
+            <Route path='salesOverview' element={<UserSalesOverview />} />
+            <Route path='categories' element={<UserCategory />} />
+          </Route>
+          
+          
           <Route path='/' element={<Home />} />
           <Route path='/about' element={<About />} />
           <Route path='/curtains' element={<Curtains />} />
@@ -94,13 +110,14 @@ function ConnectivePage() {
           <Route path='/users' element={<ProtectedRoute><Users /></ProtectedRoute>} />
           <Route path='/managesalespage' element={<ManageSalesPage />} />
           <Route path='/approach' element={<Approach />} />
-         
           <Route path='/cart' element={<Cart />} />
           <Route path='/subproducts/:productId' element={<SubproductsPage />} />
           <Route path='/login' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/addproducts' element={<AddProducts />} />
           <Route path='sales' element={<Sales />} />
+          <Route path='shopselection' element={<ShopSelection />} />
+
           {/* Admin Route with Nested Orders Route */}
           <Route path='/admin' element={<ProtectedRoute><Admin /></ProtectedRoute>}>
             <Route path='orders' element={<ProtectedRoute><Orders /></ProtectedRoute>} />
@@ -109,10 +126,12 @@ function ConnectivePage() {
             <Route path='salesOverview' element={<SalesOverview />} />
             <Route path='adminCategories' element={<AdminCategories />} />
             <Route path='saleshistory' element={<SalesHistory />} />
-            
             <Route path='addcurtains' element={<AddCurtain />} />
+            <Route path='manageusers' element={<ManageUsers />} />
             {/* Add more admin nested routes as needed */}
+            <Route path='manageshops' element={<ManageShops />} />
           </Route>
+
         </Routes>
       </main>
 

@@ -1,96 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { useFetchSalesQuery } from '../Store/Api/salesSlice';
+import { Bar } from 'react-chartjs-2'; // Import Bar chart
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js'; // Chart.js imports
 import { formatDistanceToNow } from 'date-fns'; // For calculating "time ago"
-import { Bar } from 'react-chartjs-2'; // Importing Bar chart from react-chartjs-2
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { db } from '../firebase-config'; // Adjust the import to your Firebase configuration
+import { collection, getDocs } from 'firebase/firestore';
 
+// Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function SalesHistory() {
-  const { data: sales = [] } = useFetchSalesQuery();
-  const [currentTime, setCurrentTime] = useState(Date.now());
-  const [selectedMonth, setSelectedMonth] = useState(''); // Empty string for total yearly sales
-  const [monthlySales, setMonthlySales] = useState([]);
-  const [filteredSales, setFilteredSales] = useState([]);
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth(); // Get the current month
+  const [sales, setSales] = useState([]); // Sales data from Firestore
+  const [selectedMonth, setSelectedMonth] = useState(''); // State for selected month
 
-  // Update the current time every minute to trigger re-renders
+  // Fetch sales data from Firestore
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentTime(Date.now()); // This will cause a re-render every minute
-    }, 60000); // 60000ms = 1 minute
-
-    return () => clearInterval(intervalId); // Clean up the interval on component unmount
-  }, []);
-
-  // Set the default selected month to the current month
-  useEffect(() => {
-    setSelectedMonth(currentMonth.toString()); // Set the default month to the current month
-  }, [currentMonth]);
-
-  // Calculate total sales for each month and the total yearly sales
-  useEffect(() => {
-    const salesPerMonth = Array(12).fill(0); // Initialize an array for 12 months
-    let yearlySales = 0;
-
-    sales.forEach((sale) => {
-      const saleDate = new Date(sale.timeCreated);
-      const month = saleDate.getMonth(); // Get the month from the sale date
-      salesPerMonth[month] += parseFloat(sale.sellingPrice || 0); // Accumulate the sales for each month
-      yearlySales += parseFloat(sale.sellingPrice || 0); // Accumulate the total yearly sales
-    });
-
-    setMonthlySales(salesPerMonth); // Set the calculated sales per month
-    setFilteredSales(yearlySales); // Set the total yearly sales
-  }, [sales]);
-
-  // Filter sales when the selected month changes
-  useEffect(() => {
-    const filterSalesByMonth = (salesList, month) => {
-      if (month === '') return salesList; // If "Total Yearly Sales" is selected, return all sales
-
-      return salesList.filter((sale) => {
-        const saleDate = new Date(sale.timeCreated);
-        return saleDate.getMonth() === month; // Compare month with integer
+    const fetchSales = async () => {
+      const salesCollection = collection(db, 'sales'); // Adjust to your collection name
+      const salesSnapshot = await getDocs(salesCollection);
+      const salesData = salesSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          timestamp: data.timestamp ? new Date(data.timestamp.seconds * 1000) : null, // Adjust for Firestore timestamp
+        };
       });
+
+      setSales(salesData); // Set all sales data
     };
 
-    if (selectedMonth === '') {
-      setFilteredSales(sales); // Display total sales for the year
-    } else {
-      setFilteredSales(filterSalesByMonth(sales, parseInt(selectedMonth)));
+    fetchSales();
+  }, []);
+
+  // Calculate total selling price for each month
+  const monthlySales = Array(12).fill(0); // Initialize array for 12 months
+
+  sales.forEach(sale => {
+    if (sale.timestamp) {
+      const month = sale.timestamp.getMonth();
+      monthlySales[month] += parseFloat(sale.sellingPrice || 0); // Accumulate the selling price
     }
-  }, [sales, selectedMonth]);
+  });
 
-  // Function to handle month selection
-  const handleMonthChange = (e) => {
-    setSelectedMonth(e.target.value); // Set the selected month
-  };
-
-  // Function to convert month number to month name
-  const getMonthName = (month) => {
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    return monthNames[parseInt(month)] || ''; // Return the month name, or empty string if invalid
-  };
-
-  // Sort the sales by timeCreated in descending order (newest first)
-  const sortedSales = [...filteredSales].sort((a, b) => new Date(b.timeCreated) - new Date(a.timeCreated));
-
-  // Calculate the total sales for the selected month or the year
-  const totalSales = selectedMonth === '' 
-    ? filteredSales.reduce((total, sale) => total + parseFloat(sale.sellingPrice || 0), 0) 
-    : monthlySales[selectedMonth];
-
-  // Bar chart data
-  const data = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  // Prepare data for the chart
+  const chartData = {
+    labels: [
+      'January', 'February', 'March', 'April', 'May', 'June', 
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ],
     datasets: [
       {
-        label: 'Sales (Ksh)',
+        label: 'Total Selling Price (Ksh)',
         data: monthlySales,
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -99,7 +59,14 @@ function SalesHistory() {
     ],
   };
 
-  // Bar chart options
+  // Filter sales based on selected month
+  const filteredSales = selectedMonth
+    ? sales.filter((sale) => {
+        return sale.timestamp && sale.timestamp.getMonth() === parseInt(selectedMonth);
+      })
+    : sales; // If no month is selected, show all sales
+
+  // Chart options
   const options = {
     scales: {
       y: {
@@ -108,78 +75,71 @@ function SalesHistory() {
     },
   };
 
+  // Function to handle month selection
+  const handleMonthChange = (e) => {
+    setSelectedMonth(e.target.value); // Update selected month
+  };
+
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-4 text-center">Sales History</h2>
 
-      {/* Bar chart displaying sales data */}
+      {/* Month selection dropdown */}
+     
+
+      {/* Bar chart displaying total selling prices for each month */}
       <div className="mb-8">
-        <Bar data={data} options={options} />
+        <Bar data={chartData} options={options} />
       </div>
-
-      {/* Display total sales for the selected month or the year */}
-      <div className="mb-4 text-center text-xl font-semibold">
-        {selectedMonth === '' 
-          ? `Total Sales for ${currentYear}: Ksh ${totalSales.toFixed(2)}`
-          : `Total Sales for ${getMonthName(selectedMonth)}: Ksh ${totalSales.toFixed(2)}`
-        }
-      </div>
-
-      {/* Dropdown to select a month or total yearly sales */}
-      <div className="flex justify-center mb-4">
-        <button
-          className={`p-2 rounded-lg mx-2 ${selectedMonth === '' ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
-          onClick={() => setSelectedMonth('')}
-        >
-          Total Yearly Sales
-        </button>
-
+      <div className="mb-4">
+        <label className="mr-2">Select Month:</label>
         <select
           value={selectedMonth}
           onChange={handleMonthChange}
           className="p-2 border border-gray-300 rounded-lg"
         >
+          <option value="">All Months</option>
           {Array.from({ length: 12 }, (_, index) => (
             <option key={index} value={index}>
-              {getMonthName(index)}
+              {new Date(0, index).toLocaleString('default', { month: 'long' })}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Check if there are no sales for the selected month */}
-      {filteredSales.length === 0 && selectedMonth !== '' ? (
-        <p className="text-center text-lg text-gray-500">
-          No Sales For {getMonthName(selectedMonth)}
-        </p>
-      ) : (
-        <div className="space-y-4">
-          {sortedSales.map((sale) => {
-            const createdAtDate = new Date(sale.timeCreated);
-            const isValidDate = !isNaN(createdAtDate.getTime()); // Check if the date is valid
+      {/* Display filtered sales data */}
+      <div className="space-y-4">
+  {filteredSales.map((sale) => {
+    const isValidDate = sale.timestamp && !isNaN(sale.timestamp.getTime()); // Check if the date is valid
 
-            return (
-              <div key={sale.id} className="bg-gray-100 p-4 rounded-lg shadow">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-xl font-semibold">Product Name: {sale.name}</h3>
-                    <p className="text-lg">Selling Price: Ksh {sale.sellingPrice}</p>
-                    <p className="text-lg">Email: {sale.email}</p>
-                    <p className="text-sm text-gray-600">
-                      Created: {createdAtDate.toLocaleString()} {/* Shows the exact time */}
-                    </p>
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {isValidDate
-                      ? formatDistanceToNow(createdAtDate, { addSuffix: true }) // Calculate "time ago"
-                      : 'Invalid date'}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+    return (
+      <div key={sale.id} className="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div className="lg:flex justify-between items-center">
+          <div className="text-white">
+            <h3 className="text-2xl font-semibold">{sale.productName}</h3>
+            <p className="text-lg">Selling Price: <span className="font-bold">Ksh {sale.sellingPrice}</span></p>
+            <p className="text-lg">Buying Price: <span className="font-bold">Ksh {sale.buyingPrice}</span></p>
+            <p className="text-lg">Sale Attendant: <span className= "font-bold text-lg text-red-400">{sale.name}</span></p>
+            <p className="text-lg">Material: <span className="font-bold text-lg">{sale.material}</span></p>
+            <p className="text-lg">Size: <span className="font-bold">{sale.size}</span></p>
+            <p className="text-sm text-gray-300">
+              Created: {isValidDate ? sale.timestamp.toLocaleString() : 'N/A'}
+            </p>
+          </div>
+          <div className='ml-48 mt-2'>
+          <span className=" text-green-200 ">
+            {isValidDate
+              ? formatDistanceToNow(sale.timestamp, { addSuffix: true }) // Calculate "time ago"
+              : 'N/A'}
+          </span>
+          </div>
+          
         </div>
-      )}
+      </div>
+    );
+  })}
+</div>
+
     </div>
   );
 }
