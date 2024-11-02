@@ -6,9 +6,8 @@ export default defineConfig({
   build: {
     outDir: 'dist', // Ensure this is set to 'dist' or your desired output directory
   },
-  server: {
-    proxy: {
-      '/backend': 'http://localhost:3002', // Proxy to your backend during development
-    },
-  },
+ 
+  define: {
+    'process.env': process.env
+  }
 });
