@@ -266,11 +266,7 @@ function Header() {
                   Pillows
                 </Link>
               </li>
-              <li>
-                <Link to="/duvets" onClick={() => setMenu(false)} className="border-b border-gray-300 shadow-md p-2 rounded"> {/* Add border and shadow */}
-                  Duvets
-                </Link>
-              </li>
+             
 
               <div className="relative lg:hidden">
                 {user ? (
