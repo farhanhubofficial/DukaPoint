@@ -47,7 +47,7 @@ function Home1() {
       desc: "All of our products and materials have lasting quality with diverse color-appealing power",
       icon: <GrYoga />,
       bgColor: "#0063ff",
-      delay: "0.3"
+      delay: "1"
     },
     {
       id: 2,
@@ -56,7 +56,7 @@ function Home1() {
       icon: <FaDumbbell />,
       link: '/',
       bgColor: "#73bc00",
-      delay: "0.6"
+      
     },
     {
       id: 3,
@@ -99,7 +99,7 @@ function Home1() {
       )}
 
       <div>
-        <div className="container mx-auto px-4 md:px-8 lg:px-16 h-auto mt-1 flex flex-col lg:flex-row items-start">
+        <div className="container mx-auto px-4 md:px-8 lg:px-16 h-auto lg:mt-24 flex flex-col lg:flex-row items-start">
           <div className='flex flex-col justify-center w-full md:w-1/2 py-14'>
             <div className="text-center md:text-left space-y-6">
               <motion.p
@@ -114,7 +114,7 @@ function Home1() {
                 variants={sliderRight(0.4)}
                 initial="hidden"
                 animate="visible"
-                className='text-5xl font-semibold lg:text-6xl !leading-tight'
+                className='text-4xl sm:text-5xl lg:text-6xl !leading-tight'
               >
                 Find Your Perfect Decoration <span className='text-primary'>Shop</span>
               </motion.h1>
@@ -122,6 +122,7 @@ function Home1() {
                 variants={sliderRight(0.4)}
                 initial="hidden"
                 animate="visible"
+                className='text-lg'
               >
                 We will help you served in a 1-on-1 catch up. Asking about our services is completely free and confidential.
               </motion.p>
@@ -145,7 +146,7 @@ function Home1() {
           <motion.div className='flex justify-center w-full md:w-1/2 lg:mt-11'>
             <motion.img
               src={HeroImage}
-              alt=""
+              alt="Hero"
               className='w-full max-w-[350px] object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105'
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -155,7 +156,7 @@ function Home1() {
         </div>
 
         <div className='bg-yellow-800 text-white w-full py-6'>
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-8 text-center'>
+          <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 text-center'>
             <div className='flex flex-col items-center'>
               <p className='text-4xl font-bold'>
                 <CountUp start={0} end={82} duration={3} />
@@ -185,88 +186,147 @@ function Home1() {
             </div>
           </div>
         </div>
-        
         <div className='bg-white'>
-          <div className='container py-24'>
-            <div className='space-y-4 p-6 text-center'>
-              <h1 className='uppercase font-semi-bold text-orange-600'>Why Choose Us</h1>
-              <p className='font-semibold text-3xl max-w-[500px] mx-auto mb-5'>Benefits of shopping services with us</p>
-            </div>
-            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6'>
-              {whyChooseData.map((item) => (
-                <motion.div
-                  variants={slideLeft(item.delay)}
-                  initial="hidden"
-                  whileInView={"visible"}
-                  key={item.id} className='flex flex-col items-center space-y-4 p-6 rounded-xl shadow-md transition-transform transform hover:scale-105'>
-                  <div
-                    style={{ backgroundColor: item.bgColor }}
-                    className='w-10 h-10 rounded-lg flex justify-center items-center text-white'
-                  >
-                    {item.icon}
-                  </div>
-                  <h3 className='font-semibold text-lg text-center'>{item.title}</h3>
-                  <p className='text-sm text-gray-500 text-center'>{item.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
+  <div className='container py-24 mx-auto'>
+    <div className='space-y-4 p-6 text-center'>
+      <h1 className='uppercase font-semi-bold text-orange-600'>Why Choose Us</h1>
+      <p className='font-semibold text-3xl max-w-[500px] mx-auto mb-5'>
+        Benefits of shopping services with us
+      </p>
+    </div>
+    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 overflow-hidden'>
+  {whyChooseData.map((item) => (
+    <motion.div
+      variants={slideLeft(item.delay)}
+      initial="hidden"
+      whileInView="visible"
+      key={item.id}
+      className='flex flex-col items-center space-y-4 p-6 rounded-xl shadow-md transition-transform transform hover:scale-100 will-change-transform'
+    >
+      <div
+        style={{ backgroundColor: item.bgColor }}
+        className='w-10 h-10 rounded-lg flex justify-center items-center text-white'
+      >
+        {item.icon}
+      </div>
+      <h3 className='font-semibold text-lg text-center'>{item.title}</h3>
+      <p className='text-sm text-gray-500 text-center'>{item.desc}</p>
+    </motion.div>
+  ))}
+</div>
 
-        {/* New Flexbox Section for Tutoring Scheduling */}
-        <div className='flex flex-col lg:flex-row items-center py-12'>
-          <motion.img
-            src={BannerData.image}
-            alt=""
-            className='w-[400px] object-cover rounded-lg shadow-lg'
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, duration: 0.5 }}
-          />
-          <div className='flex flex-col justify-center text-center md:text-left'>
-            <motion.h2
-              className='text-2xl font-bold text-yellow-700'
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              {BannerData.tag}
-            </motion.h2>
-            <motion.h1
-              className='text-4xl font-semibold my-4'
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              {BannerData.title}
-            </motion.h1>
-            <motion.p
-              className='text-lg text-gray-800 max-w-xl mx-auto'
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              {BannerData.subtitle}
-            </motion.p>
-            <motion.a
-              href={BannerData.link}
-              className='mt-6 inline-block bg-yellow-700 text-white py-2 px-6 rounded-full font-semibold'
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              Get Started
-            </motion.a>
-          </div>
-        </div>
+  </div>
+</div>
 
-        <div className='bg-white'>
-          <div className="container">
-            <div className="grid">
-              {/* You can add more content here if needed */}
-            </div>
-          </div>
-        </div>
+
+        <div className='container mx-auto px-4 md:px-8 lg:px-16 h-auto lg:mt-24 flex flex-col lg:flex-row items-center lg:space-x-12'>
+  
+  {/* Image Section */}
+  <motion.img
+    src={BannerData.image}
+    alt="Hero"
+    className='w-full sm:w-[400px] lg:w-[500px] object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105'
+    initial={{ scale: 0.8, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    transition={{ type: "spring", stiffness: 300, duration: 0.5 }}
+  />
+
+  {/* Text Section */}
+  <div className='flex flex-col justify-center text-center lg:text-left w-full lg:w-[28rem] mt-8 lg:mt-0'>
+    <motion.h2
+      className='text-3xl sm:text-4xl font-bold text-yellow-600'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
+    >
+      {BannerData.tag}
+    </motion.h2>
+    
+    <motion.h1
+      className='text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-800 my-4 leading-tight'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+    >
+      {BannerData.title}
+    </motion.h1>
+
+    <motion.p
+      className='text-lg sm:text-xl text-gray-700 max-w-xl mx-auto lg:mx-0'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.3 }}
+    >
+      {BannerData.subtitle}
+    </motion.p>
+
+    <motion.a
+      href={BannerData.link}
+      className='mt-6  bg-yellow-700 text-white w-36 h-12 flex items-center justify-center rounded-full font-semibold text-lg transition-all hover:bg-yellow-600'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
+    >
+      Get Started
+    </motion.a>
+  </div>
+</div>
+
+
+        <div className='container mx-auto px-4 md:px-8 lg:px-16 h-auto lg:mt-24 flex flex-col lg:flex-row items-center lg:space-x-12'>
+  <div className='flex flex-col justify-center text-center lg:text-left w-full md:w-[28rem] space-y-4'>
+    <motion.h2
+      className='text-3xl font-bold text-yellow-600 md:text-4xl'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
+    >
+      {BannerData.tag}
+    </motion.h2>
+
+    <motion.h1
+      className='text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-800 leading-tight'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+    >
+      {BannerData.title}
+    </motion.h1>
+
+    <motion.p
+      className='text-lg text-gray-700 max-w-xl mx-auto lg:mx-0'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.3 }}
+    >
+      {BannerData.subtitle}
+    </motion.p>
+
+    <motion.a
+      href={BannerData.link}
+      className='mt-6 inline-block bg-yellow-700 text-white w-36 h-12 flex items-center justify-center rounded-full font-semibold text-lg transition-all hover:bg-yellow-600'
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
+    >
+      Get Started
+    </motion.a>
+  </div>
+
+  <motion.div
+    className='flex justify-center mt-8 lg:mt-0'
+    initial={{ scale: 0.8, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    transition={{ type: "spring", stiffness: 300, duration: 0.7 }}
+  >
+    <img
+      src={BannerData.image}
+      alt="Hero"
+      className='w-full md:w-[400px] lg:w-[500px] object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105'
+    />
+  </motion.div>
+</div>
+
       </div>
     </>
   );
