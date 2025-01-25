@@ -304,12 +304,12 @@ function Home1() {
 
     <motion.a
       href={BannerData.link}
-      className='mt-6 inline-block bg-yellow-700 text-white w-36 h-12 flex items-center justify-center rounded-full font-semibold text-lg transition-all hover:bg-yellow-600'
+      className='mt-6  bg-yellow-700 text-white w-36 h-12 flex items-center justify-center rounded-full font-semibold text-lg transition-all hover:bg-yellow-600'
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      Get Started with it  
+      Get Started 
     </motion.a>
   </div>
 
