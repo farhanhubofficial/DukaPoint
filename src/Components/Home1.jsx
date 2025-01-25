@@ -309,7 +309,7 @@ function Home1() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
-      Get Startede
+      Get Started
     </motion.a>
   </div>
 
