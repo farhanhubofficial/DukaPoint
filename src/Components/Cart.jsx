@@ -3,11 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { removeItemFromCart, addItemToCart, clearCartItems } from '../Store/Api/CartSlice';
 import { auth, db } from '../firebase-config'; // Import Firebase auth and Firestore
 import { doc, setDoc } from 'firebase/firestore'; // Import Firestore methods
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from React Router
 
 function Cart() {
   const dispatch = useDispatch();
   const items = useSelector((state) => state.cart.items);
   const [orderStatus, setOrderStatus] = useState('');
+  const navigate = useNavigate(); // useNavigate hook for navigation
 
   // Load cart items from localStorage when the component mounts
   useEffect(() => {
@@ -33,6 +35,12 @@ function Cart() {
   };
 
   const handleOrder = async () => {
+    if (!user) {
+      // If no user is logged in, redirect to the login page
+      navigate('/login'); // Assuming your login page is at /login
+      return;
+    }
+
     setOrderStatus('Processing...');
 
     try {
@@ -68,7 +76,7 @@ function Cart() {
       setOrderStatus('Order Confirmed');
     } catch (error) {
       console.error('Error placing order: ', error);
-      setOrderStatus('Order Failed');
+      setOrderStatus('Order Failed. ');
     }
   };
 
