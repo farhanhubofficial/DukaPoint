@@ -65,7 +65,12 @@ function ConnectivePage() {
           console.error('Error fetching user data:', error);
         }
       }
-      setIsLoading(false); // Stop loading
+
+      // Simulate a delay for the spinner (e.g., 2 seconds) after the auth data is fetched
+      setTimeout(() => {
+        setIsLoading(false); // Stop loading after the delay
+      }, 2000); // Delay of 2 seconds
+
     });
 
     // Restore the redirect state from sessionStorage (this makes sure it only happens once)
