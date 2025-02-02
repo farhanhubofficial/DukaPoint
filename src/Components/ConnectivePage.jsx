@@ -35,6 +35,7 @@ import ManageUsers from './ManageUsers';
 import ShopSelection from './ShopSelection';
 import ManageShops from './ManageShops';
 import Home1 from './Home1';
+
 function ConnectivePage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -80,18 +81,23 @@ function ConnectivePage() {
   const showHeader = isAdminRoute || isUserRoute;
 
   if (isLoading) {
-    return <div>Loading...</div>; // Show loading state while checking authentication
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="spinner-container">
+          <div className="spinner"></div> {/* The spinner */}
+          <div className="decor-point">DecorPoint</div> {/* The blinking "DecorPoint" */}
+        </div>
+      </div>
+    ); // Show loading spinner while checking authentication
   }
 
   return (
     <div className='relative min-h-screen flex flex-col'>
       {/* Conditionally render Header and Footer based on the current route */}
       {!showHeader && (
-    <div className='sticky z-50 top-0'>
-    <Header />
-  </div>
-  
-     
+        <div className='sticky z-50 top-0'>
+          <Header />
+        </div>
       )}
 
       <main className='flex-grow'>
@@ -101,7 +107,6 @@ function ConnectivePage() {
             <Route path='salesOverview' element={<UserSalesOverview />} />
             <Route path='categories' element={<UserCategory />} />
           </Route>
-          
           
           <Route path='/' element={<Home />} />
           <Route path='/about' element={<About />} />
