@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import HeroImage from "../Images/classic-curtains.jpg";
+import HeroImage from "../Images/download.jpeg";
+import HeroImage2 from "../Images/carp.jpeg";
+
 import { FaPlay } from "react-icons/fa";
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
@@ -28,8 +30,8 @@ const slideLeft = (delay) => ({
 const BannerData = {
   image: HeroImage,
   tag: "CUSTOMIZE WITH YOUR SCHEDULE",
-  title: "Personalized Professional Online Tutor on Your Schedule",
-  subtitle: "Our scheduling system allows you to select based on your free time. Keep track of your students' class and tutoring schedules, and never miss your lectures. The best online class scheduling system with easy accessibility.",
+  title: "Personalized Professional Online decoration agent on Your Schedule",
+  subtitle: "Our scheduling system allows you to select based on your free time. Keep track of your house feels' office  and the properties at large, and never miss Our service. The best online decoration  scheduling system with easy accessibility.",
   link: "#"
 };
 
@@ -219,11 +221,11 @@ function Home1() {
 </div>
 
 
-        <div className='container mx-auto px-4 md:px-8 lg:px-16 h-auto lg:mt-24 flex flex-col lg:flex-row items-center lg:space-x-12'>
+        <div className='container  mx-auto px-4 md:px-8 lg:px-16 h-auto lg:mt-24 flex flex-col lg:flex-row items-center lg:space-x-12'>
   
   {/* Image Section */}
   <motion.img
-    src={BannerData.image}
+    src={HeroImage}
     alt="Hero"
     className='w-full sm:w-[400px] lg:w-[500px] object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105'
     initial={{ scale: 0.8, opacity: 0 }}
@@ -232,7 +234,7 @@ function Home1() {
   />
 
   {/* Text Section */}
-  <div className='flex flex-col justify-center text-center lg:text-left w-full lg:w-[28rem] mt-8 lg:mt-0'>
+  <div className='w-full max-w-screen-lg px-4 py-8 bg-white border border-gray-300  lg:border-0 rounded-lg shadow-xl '>
     <motion.h2
       className='text-3xl sm:text-4xl font-bold text-yellow-600'
       initial={{ y: 20, opacity: 0 }}
@@ -273,59 +275,59 @@ function Home1() {
 </div>
 
 
-        <div className='container mx-auto px-4 md:px-8 lg:px-16 h-auto lg:mt-24 flex flex-col lg:flex-row items-center lg:space-x-12'>
-  <div className='flex flex-col justify-center text-center lg:text-left w-full md:w-[28rem] space-y-4'>
-    <motion.h2
-      className='text-3xl font-bold text-yellow-600 md:text-4xl'
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.1 }}
-    >
-      {BannerData.tag}
-    </motion.h2>
+<div className='container mx-auto px-4 md:px-8 lg:px-16 h-auto lg:mt-24 flex flex-col lg:flex-row mt-4 items-center lg:space-x-12'>
+  <div className='w-full max-w-screen-lg px-4 py-8 bg-white border border-gray-300  lg:border-0 rounded-lg shadow-xl'>
+    <div className='flex flex-col justify-center text-center lg:text-left w-full md:w-[28rem] space-y-4'>
+      <motion.h2
+        className='text-3xl font-bold text-yellow-600 md:text-4xl'
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
+        {BannerData.tag}
+      </motion.h2>
 
-    <motion.h1
-      className='text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-800 leading-tight'
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-    >
-      {BannerData.title}
-    </motion.h1>
+      <motion.h1
+        className='text-4xl sm:text-5xl lg:text-6xl font-semibold text-gray-800 leading-tight'
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        {BannerData.title}
+      </motion.h1>
 
-    <motion.p
-      className='text-lg text-gray-700 max-w-xl mx-auto lg:mx-0'
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.3 }}
-    >
-      {BannerData.subtitle}
-    </motion.p>
+      <motion.p
+        className='text-lg text-gray-700 max-w-xl mx-auto lg:mx-0'
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        {BannerData.subtitle}
+      </motion.p>
 
-    <motion.a
-      href={BannerData.link}
-      className='mt-6  bg-yellow-700 text-white w-36 h-12 flex items-center justify-center rounded-full font-semibold text-lg transition-all hover:bg-yellow-600'
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
-    >
-      Get Started 
-    </motion.a>
+      <motion.a
+        href={BannerData.link}
+        className='mt-6 bg-yellow-700 text-white w-36 h-12 flex items-center justify-center rounded-full font-semibold text-lg transition-all hover:bg-yellow-600'
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+      >
+        Get Started 
+      </motion.a>
+    </div>
   </div>
 
-  <motion.div
-    className='flex justify-center mt-8 lg:mt-0'
+  <motion.img
+    src={HeroImage2}
+    alt="Hero"
+    className='w-full sm:w-[400px] lg:w-[500px] object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105'
     initial={{ scale: 0.8, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
-    transition={{ type: "spring", stiffness: 300, duration: 0.7 }}
-  >
-    <img
-      src={BannerData.image}
-      alt="Hero"
-      className='w-full md:w-[400px] lg:w-[500px] object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105'
-    />
-  </motion.div>
+    transition={{ type: "spring", stiffness: 300, duration: 0.5 }}
+  />
+
 </div>
+
 
       </div>
     </>

@@ -85,7 +85,8 @@ function Header() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.5 }}
-      className="flex items-center justify-between w-screen px-10 py-4 relative bg-white shadow-md font-[poppins]"
+      className="flex items-center justify-between w-screen px-6 l py-4 relative bg-white shadow-md font-[poppins] lg:px-10"
+
     >
       <div className="flex items-center gap-4">
         <IoMdMenu onClick={() => setMenu(true)} className="text-3xl lg:hidden" />
