@@ -90,7 +90,10 @@ function ConnectivePage() {
       <div className="flex justify-center items-center min-h-screen">
         <div className="spinner-container">
           <div className="spinner"></div> {/* The spinner */}
-          <div className="decor-point">DecorPoint</div> {/* The blinking "DecorPoint" */}
+          <div className="decor-point"> <div className = "text-white font-roboto font-bold text-3xl"> <span className="text-black">DECOR</span>
+          <span className="text-yellow-800">POINT</span>
+          </div>
+          </div> {/* The blinking "DecorPoint" */}
         </div>
       </div>
     ); // Show loading spinner while checking authentication
